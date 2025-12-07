@@ -1,0 +1,261 @@
+{% extends 'base3.html' %}
+{% load static %}
+
+{% block title %}Dashboard Vendeur{% endblock title %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4f6f9;
+        overflow-x: hidden;
+    }
+
+    /* Animation */
+    @keyframes slideIn {
+        from { transform: translateY(-30px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .dashboard-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 20px;
+        background: linear-gradient(135deg, #FF6B6B, #556270);
+        color: white;
+        border-radius: 12px;
+        box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.3);
+        text-align: center;
+        animation: slideIn 1s ease-in-out;
+    }
+
+    .dashboard-header h1 { font-size: 28px; display: flex; align-items: center; }
+
+    .statsBar {
+        display: flex;
+        gap: 25px;
+        margin: 30px 0;
+        justify-content: space-between;
+        animation: slideIn 1s ease-in-out;
+    }
+
+    .statsBar .i {
+        flex: 1;
+        background: linear-gradient(135deg, #FF6B6B, #556270);
+        color: white;
+        text-align: center;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+        cursor: pointer;
+    }
+
+    .statsBar .i:hover { transform: scale(1.12); box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.4); }
+
+    .recent-section { display: flex; gap: 25px; margin-top: 40px; animation: slideIn 1s ease-in-out; }
+
+    .recent-items, .recent-orders {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.2);
+        flex: 1;
+        transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+    }
+
+    .recent-items:hover, .recent-orders:hover {
+        transform: translateY(-7px);
+        box-shadow: 0px 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .dashboard-actions {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        margin-top: 50px;
+        animation: slideIn 1s ease-in-out;
+    }
+
+    .dashboard-actions a {
+        background: linear-gradient(135deg, #556270, #FF6B6B);
+        color: white;
+        padding: 18px 30px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease-in-out;
+        font-size: 18px;
+    }
+
+    .dashboard-actions a:hover { transform: scale(1.12); box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3); }
+    .recent-items {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+        animation: slideIn 1s ease-in-out;
+    }
+
+    .recent-items h3 {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #FF6B6B;
+        padding-bottom: 10px;
+    }
+
+    .recent-items ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .recent-items li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f9f9f9;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .recent-items li:hover {
+        background: #f0f0f0;
+        transform: scale(1.02);
+    }
+
+    .recent-items img {
+        border-radius: 8px;
+        margin-right: 10px;
+    }
+
+    .recent-items .details {
+        flex-grow: 1;
+    }
+
+    .recent-items .actions {
+        display: flex;
+        gap: 12px;
+    }
+
+    .recent-items .actions a {
+        color: #556270;
+        font-size: 20px;
+        transition: color 0.3s ease-in-out;
+    }
+
+    .recent-items .actions a:hover {
+        color: #FF6B6B;
+    }
+	.recent-orders {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+        animation: slideIn 1s ease-in-out;
+    }
+
+    .recent-orders h3 {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        border-bottom: 2px solid #556270;
+        padding-bottom: 10px;
+    }
+
+    .recent-orders ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .recent-orders li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #f9f9f9;
+        padding: 12px 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .recent-orders li:hover {
+        background: #f0f0f0;
+        transform: scale(1.02);
+    }
+
+    .recent-orders .details {
+        flex-grow: 1;
+    }
+</style>
+
+<div class="pageWrap">
+    <div class="pageContent extended">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1><i class="zmdi zmdi-view-dashboard"></i> Tableau de Bord - {{ etablissement.nom }}</h1>
+            </div>
+            
+            <div class="statsBar">
+                <div class="i">
+                    <h3><i class="zmdi zmdi-store"></i> Nombres d'articles</h3>
+                    <div class="num">{{ total_articles }}</div>
+                </div>
+                <div class="i">
+                    <h3><i class="zmdi zmdi-shopping-cart"></i> Commandes aujourd'hui</h3>
+                    <div class="num">{{ commandes_aujourdhui }}</div>
+                </div>
+                <div class="i">
+                    <h3><i class="zmdi zmdi-receipt"></i> Commandes totales</h3>
+                    <div class="num">{{ total_commandes }}</div>
+                </div>
+            </div>
+            
+            <div class="recent-section">
+                <div class="recent-items">
+                    <h3>5 Derniers Articles Postés</h3>
+                    <ul>
+                        {% for produit in derniers_articles %}
+                        <li>
+                            <img src="{{ produit.image.url }}" width="60"> 
+                            <div class="details">{{ produit.nom }} - {{ produit.prix }}€ <br><small>Ajouté le {{ produit.date_add|date:"d/m/Y" }}</small></div>
+                            <div class="actions">
+                                <a href="{% url 'product_detail' produit.slug %}"><i class="zmdi zmdi-eye"></i></a>
+                                <a href="#"><i class="zmdi zmdi-edit"></i></a>
+                                <a href="#"><i class="zmdi zmdi-delete"></i></a>
+                            </div>
+                        </li>
+                        {% empty %}
+                        <li>Aucun article trouvé.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                <div class="recent-orders">
+                    <h3>5 Dernières Commandes Reçues</h3>
+                    <ul>
+                        {% for commande in dernieres_commandes %}
+                        <li>
+                            <div class="details">Commande #{{ commande.id }} - {{ commande.prix_total }}€ <br><small>Reçue le {{ commande.date_add|date:"d/m/Y" }}</small></div>
+                        </li>
+                        {% empty %}
+                        <li>Aucune commande récente.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="dashboard-actions">
+                <a href="{% url 'ajout-article' %}"><i class="zmdi zmdi-plus"></i> Ajouter un Nouveau Produit</a>
+                <a href="{% url 'commande-reçu' %}"><i class="zmdi zmdi-format-list-bulleted"></i> Voir Toutes les Commandes</a>
+            </div>
+
+            <br>
+            <br>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,378 @@
+{% load static %}
+<!doctype html>
+<html class="" lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    {% block title %}
+    {% endblock title %}
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <link href="{{  infos.icon.url }}" type="images/x-icon" rel="shortcut icon">
+    
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/core.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/style-customizer.css' %}">
+    <link href="#" data-style="styles" rel="stylesheet">
+    
+    <script src="{% static 'js/vendor/modernizr-2.8.3.min.js' %}"></script>
+    {% block styles %}
+    {% endblock styles %}
+    <style>
+        
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-toggle {
+            cursor: pointer;
+            padding: 5px;
+            color: #333;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            min-width: 200px;
+            background-color: white;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu a {
+            display: block;
+            padding: 10px 20px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .dropdown-menu a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .header-action-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-action-box .mini-cart,
+        .header-action-box .search,
+        .header-action-box .dropdown {
+            margin-left: 20px;
+        }
+    </style>
+
+</head>
+
+<body>
+    
+
+    <div class="wrapper white-bg">
+        
+        <div class="header">
+            <div class="header-top">
+                <div class="container">
+                    <div class="row mobile-items-center">
+                        <div class="col-md-6 col-sm-6 hidden-xs">
+                            <div class="header-left">
+                                <div class="call-center">
+                                    <p><i class="zmdi zmdi-phone"></i>{{ infos.contact_1 }}</p>
+                                </div>
+                                <div class="mail-address">
+                                    <p><i class="zmdi zmdi-email"></i>{{ infos.email}}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-sm-6 col-xs-12">
+                            <div class="social-icons">
+                                {% if infos.facebook_url %}
+                                <a href="{{ infos.facebook_url }}"><i class="zmdi zmdi-facebook"></i></a>
+                                {% endif %}
+                                {% if infos.instagram_url %}
+                                <a href="{{ infos.instagram_url }}"><i class="zmdi zmdi-instagram"></i></a>
+                                {% endif %}
+                                {% if infos.twitter_url %}
+                                <a href="{{ infos.twitter_url }}"><i class="zmdi zmdi-twitter"></i></a>
+                                {% endif %}
+                                {% if infos.whatsapp %}
+                                <a href="https://wa.me/{{ infos.whatsapp }}"><i class="zmdi zmdi-whatsapp"></i></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="header-bottom sticky-header">
+                <div class="container">
+                    <div class="mgea-full-width">
+                        <div class="row">
+                            <div class="col-lg-2 col-md-6 col-sm-9 xs-3">
+                                <div class="logo">
+                                    <a href="{% url 'index' %}"><img src="{{ infos.logo.url }}" alt=""></a>
+                                </div>
+                            </div>
+                            <div class="col-lg-7 d-none d-lg-block">
+                                <div class="menu">
+                                    <nav>
+                                        <ul>
+                                            <li><a href="{% url 'index' %}">Accueil</a></li>
+                                            <li><a href="{% url 'shop' %}">Deal</a>
+                                                <ul class="dropdown_menu">
+                                                    {% for c in cat %}
+                                                    <li><a href="{% url 'categorie' c.slug %}">{{ c.nom }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </li>
+                                            <li><a href="{% url 'about' %}">A Propos</a></li>
+                                            <li><a href="{% url 'contact' %}">Contact</a></li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-md-6 col-sm-3 xs-9">
+                                <div class="header-action-box">
+                                    <div class="mini-cart">
+                                        <div class="cart-icon">
+                                            <a href="#"><i class="zmdi zmdi-shopping-cart"></i></a>
+                                            <span>{{ cart.produit_panier.count }}</span>
+                                        </div>
+                                        <!-- Mini Cart -->
+                                        <div class="mini-cart-box right">
+                                            <div class="mini-cart-product fix">
+                                                {% for c in cart.produit_panier.all %}
+                                                <a href="#" class="image"><img src="{{ c.produit.image.url }}" alt="" /></a>
+                                                <div class="content fix">
+                                                    <a href="#" class="title">{{ c.produit.nom }}</a>
+                                                    {% if c.produit.check_promotion %}
+                                                    <p><span style="text-decoration: line-through 2px;"> {{ c.produit.prix }} </span></p>
+                                                    <p>{{ c.produit.prix_promotionnel }} F CFA</p>
+                                                    {% else %}
+                                                    <p> {{ c.produit.prix }} F CFA</p>
+                                                    {% endif %}
+                                                    <p> Quantité : {{ c.quantite }}</p>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                            <div class="mini-cart-checkout text-center">
+                                                <a href="{% url 'cart' %}">Voir le panier</a>
+                                            </div>
+                                        </div>
+                                        <!--mini cart end-->
+                                    </div>
+                                    <div class="search">
+                                        <a href="#"><i class="zmdi zmdi-search"></i></a>
+                                    </div>
+
+                                    {% if user.is_authenticated %}
+                                    {% if user.customer %}
+                                        
+                                        <div class="dropdown">
+                                            <a href="javascript:void(0)" class="dropdown-toggle">{{ user.username }}</a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="{% url 'profil' %}">Mon Profil</a>
+                                                <a class="dropdown-item" href="{% url 'commande' %}">Mes Commandes</a>
+                                                <a class="dropdown-item" href="{% url 'liste-souhait' %}">Ma Liste de Souhaits</a>
+                                                <a class="dropdown-item" href="{% url 'parametre' %}">Paramètres</a>
+                                            </div>
+                                        </div>
+                                    {% elif user.etablissement %}
+                                        
+                                        <div class="dropdown">
+                                            <a href="javascript:void(0)" class="dropdown-toggle">{{ user.username }}</a>
+                                            <div class="dropdown-menu">
+                                                <a class="dropdown-item" href="{% url 'dashboard' %}">Tableau de Bord</a>
+                                                <a class="dropdown-item" href="{% url 'article-detail' %}">Mes Articles</a>
+                                                <a class="dropdown-item" href="{% url 'etablissement-parametre' %}">Paramètres</a>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+    
+                                    <!-- Bouton de déconnexion -->
+                                    <div class="zmdi login" style="font-size:18px; padding:5px; margin-left:20px">
+                                        <a href="{% url 'deconnexion' %}"  title="Se déconnecter" style="color:black"><i class="zmdi zmdi-square-right"></i></a>
+                                    </div>
+
+                                {% else %}
+                                    
+                                    <div class="zmdi login">
+                                        <a href="{% url 'login' %}">Connexion</a>
+                                    </div>
+                                {% endif %}
+
+                                </div>
+
+                                <div class="search-box">
+                                    <div class="search-form">
+                                        <form action="#" id="search-form">
+                                            <input type="search" name="search" placeholder="Search here...">
+                                            <button type="submit">
+                                                <span><i class="fa fa-search"></i></span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+                <div class="mobile-menu-area d-lg-none">
+                    <div class="container">
+                        <div class="col-md-12">
+                            <nav id="dropdown">
+                                <ul>
+                                    <li><a href="{% url 'index' %}">Accueil</a></li>
+                                    <li><a href="{% url 'shop' %}">Deal</a>
+                                        <ul class="dropdown_menu">
+                                            {% for c in cat %}
+                                            <li><a href="{% url 'categorie' c.slug %}">{{ c.nom }}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </li>
+                                    <li><a href="{% url 'about' %}">A Propos</a></li>
+                                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                                    <hr>
+                                    <li><a href="{% url 'cart' %}">Panier</a></li>
+                                    {% if user.is_authenticated %}
+                                    <li><a href="#">{{ user.username }}</a></li>
+                                    <li><a href="{% url 'deconnexion' %}" style="color:black" title="Se déconnecter"><i class="zmdi zmdi-square-right"></i></a>
+                                    {% else %}
+                                    <li><a href="{% url 'login' %}">Connexion</a></li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+         </div>
+        
+
+        {% block content %}
+
+        {% endblock content %}
+
+       
+        <div class="footer">
+            <div class="footer-top ptb-100">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 col-xs-12">
+                            <div class="single-footer contact">
+                                <div class="footer-title">
+                                    <h3>Contactez-nous</h3>
+                                </div>
+                                <div class="contact-action mb-15">
+                                    <span><i class="zmdi zmdi-pin"></i></span>
+                                    <p> </p>
+                                    <p style="margin-left:1px;">{{ infos.adresse }} <br> &nbsp;</p>
+                                </div>
+                                <div class="contact-action mb-15">
+                                    <span><i class="zmdi zmdi-email"></i></span>
+                                    <p>{{ infos.email }}<br>{{ infos.email_2}}</p>
+                                </div>
+                                <div class="contact-action">
+                                    <span>
+                                        <i class="zmdi zmdi-phone"></i>
+                                    </span>
+                                    <p>{{ infos.contact_1 }}<br>{{ infos.contact_2 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-2 col-md-6 col-xs-12">
+                            <div class="single-footer quick-links">
+                               <div class="footer-title">
+                                    <h3>Navigation</h3>
+                                </div>
+                                <ul>
+                                    <li><a href="{% url 'index' %}">Accueil</a></li>
+                                    <li><a href="{% url 'about' %}">A Propos</a></li>
+                                    <li><a href="{% url 'shop' %}">Deals</a></li>
+                                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-xs-12">
+                            <div class="single-footer open-hours">
+                                <div class="footer-title">
+                                    <h3>Horaires</h3>
+                                </div>
+                                <p>{{ infos.horaire_description}}</p>
+                                <ul>
+                                    {% for horaire in horaires %}
+                                    <li>{{ horaire.titre }}<span> : {{ horaire.description }}</span></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-md-6 col-xs-12">
+                            <div class="single-footer widget">
+                                <div class="footer-title">
+                                    <h3>Galerie</h3>
+                                </div>
+                                <ul>
+                                    {% for galerie in galeries %}
+                                    <li><a href="{{ galerie.image.url }}"><img src="{{ galerie.image.url }}" alt="{{ galerie.titre }}"></a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom text-center">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="copyright">
+                                <p>
+                                    Copyright© Cool Deal 2023.All right reserved.Created by
+                                    <a href="#">Cool Deal</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+
+    </div>
+
+
+    
+
+
+    
+    <script src="{% static 'js/vendor/jquery-1.12.0.min.js' %}"></script>
+
+    {% block scripts %}
+    {% endblock scripts %}
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/jquery.nivo.slider.pack.js' %}"></script>
+    <script src="{% static 'js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'js/ajax-mail.js' %}"></script>
+    <script src="{% static 'js/jquery.magnific-popup.js' %}"></script>
+    <script src="{% static 'js/jquery.counterup.min.js' %}"></script>
+    <script src="{% static 'js/waypoints.min.js' %}"></script>
+    <script src="{% static 'js/style-customizer.js' %}"></script>
+    <script src="{% static 'js/plugins.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+
+</body>
+
+</html>

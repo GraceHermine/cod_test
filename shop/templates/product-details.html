@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Product Dteials</title>
+{% endblock title %}
+
+{% block content %}
+
+        
+        <div class="breadcrumbs text-center" class="breadcrumbs text-center" style="background: rgba(0, 0, 0, 0) url('{{ produit.image.url }}') no-repeat scroll center center / cover">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="breadcrumbs-title">
+                            <h2 style="color: white;">Proudct Details</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}" style="color: white;">HOME <span>//</span></a></li>
+                    <li>Prouduct Details</li>
+                </ul>
+            </div>
+        </div>
+        <!--Breadcrumbs end-->
+        <!-- product details start -->
+        <div class="product-details-area  ptb-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12 overflow-hidden">
+                       <div class="zoomWrapper clearfix">
+                            <div id="img-1" class="zoomWrapper single-zoom">
+                                <a href="#">
+                                    <img id="zoom1" src="{{ produit.image.url }}" data-zoom-image="{{ produit.image.url }}" alt="{{ produit.nom }}">
+                                </a>
+                            </div>
+                            <div class="product-thumb">
+                                <ul class="details-slider" id="gallery_01">
+                                    <li>
+                                        <a class="elevatezoom-gallery" href="#" data-image="{{ produit.image.url }}" data-zoom-image="{{ produit.image.url }}"><img src="{{ produit.image.url }}" alt=""></a>
+                                    </li>
+                                    <li>
+                                        <a class="elevatezoom-gallery" href="#" data-image="{{ produit.image_2.url }}" data-zoom-image="{{ produit.image_2.url }}"><img src="{{ produit.image_2.url }}" alt=""></a>
+                                    </li>
+                                    <li>
+                                        <a class="elevatezoom-gallery" href="#" data-image="{{ produit.image_3.url }}" data-zoom-image="{{ produit.image_3.url }}"><img src="{{ produit.image_3.url }}" alt=""></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 col-md-12 col-sm-12 col-xs-12" id="cart">
+                        <div class="product-detail single-product-info">
+                            <h3>{{ produit.nom }}</h3>
+                            <div class="rating-review">
+                                <div class="single-rating-review">
+                                    <i class="zmdi zmdi-star"></i>
+                                    <i class="zmdi zmdi-star"></i>
+                                    <i class="zmdi zmdi-star"></i>
+                                    <i class="zmdi zmdi-star"></i>
+                                    <i class="zmdi zmdi-star-outline"></i>
+                                </div>
+                            </div>
+                            {% if produit.check_promotion %}
+                            <p><span style="text-decoration: line-through 2px;"> {{ produit.prix }} </span></p>
+                            <h4>{{ produit.prix_promotionnel }} F CFA</h4>
+                            {% else %}
+                            <h4> {{ produit.prix }} F CFA</h4>
+                            {% endif %}
+                            <h5>Disponibilité: <span>En Stock</span></h5>
+                            <h5 class="overview">Description:</h5>
+                            <p>{{ produit.description }}</p>
+
+                            <div class="shop-buttons">
+                                <p>Quantity:</p>
+                                <div id="quantity-wanted-p">
+                                    <input v-model="quantite" name="quantite" type="number" class="cart-plus-minus-box">
+                                    <div class="dec qtybutton">-</div>
+                                    <div class="inc qtybutton">+</div>
+                                    <span class="clearfix"></span>
+                                </div>
+                            </div>
+                            <ul class="product-action">
+                                <li><a href="#"><i class="zmdi zmdi-refresh"></i></a></li>
+                                <li>
+                                    <button v-if="!isregister" v-on:click.prevent="add_to_cart" class="add-to-cart btn btn-success">Ajouter au panier</button>
+                                </li>
+                                <li>
+                                    {% if user.is_authenticated %}
+                                        <form method="POST" action="{% url 'toggle_favorite' produit.id %}" style="display: inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="favorite-btn" style="background: none; border: none; cursor: pointer;">
+                                                {% if is_favorited %}
+                                                    <i class="zmdi zmdi-favorite" style="color: red;"></i>
+                                                {% else %}
+                                                    <i class="zmdi zmdi-favorite-outline"></i> 
+                                                {% endif %}
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <button class="favorite-btn" onclick="alert('Veuillez vous connecter pour ajouter ce produit à vos favoris.')" style="background: none; border: none; cursor: pointer;">
+                                            <i class="zmdi zmdi-favorite-outline"></i>
+                                        </button>
+                                    {% endif %}
+                                </li>
+                            </ul>                            
+                            
+                            <br>
+                            {% csrf_token %}
+                            <div v-if="isSuccess" class="alert alert-success" role="alert">
+                                ${ message }
+                            </div>
+                            <div v-if="error" class="alert alert-danger" role="alert">
+                                ${ message }
+                            </div>
+                        </div>
+                    </div>  
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <div class="product-description-tab mt-60">
+                                <div class="description-tab-menu">
+                                    <ul class="clearfix nav" role="tablist">
+                                        <li role="presentation" class="active"><a href="#description" aria-controls="description" role="tab" data-bs-toggle="tab">A Propos du vendeur</a></li>
+                                    </ul>
+                                </div>
+                                <div class="tab-content">
+                                    <div role="tabpanel" class="tab-pane active" id="description">
+                                       <p>{{ produit.etablissement.nom }}</p>
+
+                                       <p>{{ produit.etablissement.description }}</p>
+                                       <p>Nos Conditions :</p>
+                                       <ul>
+                                           <li><i class="fa fa-circle"></i>Les Annulations avec remboursement sont possibles dans un délai de 24H avant date pour les rendez-vous en salon.</li>
+                                           <li><i class="fa fa-circle"></i>Pour les produits cosmétiques, Aucun retour n'est possible</li>
+                                           <li><i class="fa fa-circle"></i>Aucun remboursement n'est possible pour les repas</li>
+                                       </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div> 
+            </div>
+            
+            <div class="related-products mt-60">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                            <div class="section-title text-center">
+                                <h2>Produits de la même catégorie</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mx-15px">
+                        <div class="related-product-list">
+                            {% for produit in produits %}
+                            <div class="px-15px">
+                                <div class="single-feature text-center">
+                                    <div class="feature-img">
+                                        <img src="{{ produit.image.url }}" alt="">
+                                    </div>
+                                    <div class="feature-desc">
+                                        <h3><a href="#">{{ produit.nom }}</a></h3>
+                                        {% if produit.check_promotion %}
+                                        <p><span style="text-decoration: line-through 2px;"> {{ produit.prix }} </span></p>
+                                        <p>{{ produit.prix_promotionnel }} F CFA</p>
+                                        {% else %}
+                                        <p> {{ produit.prix }} F CFA</p>
+                                        {% endif %}
+                                        <a href="{% url 'product_detail' produit.slug %}">Voir plus</a>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+        </div>
+        
+
+{% endblock content %}
+
+{% block scripts %}
+
+   <!-- axios -->
+   <script src="{% static 'js/axios.js' %}"></script>
+
+   <!-- vue -->
+   <script src="{% static 'js/vue.js' %}"></script>
+
+   <script>
+        // Block Vue JS
+        new Vue({
+            el: '#cart',
+            data: {
+                panier: '{{ cart.id }}',
+                produit: '{{ produit.id }}',
+                quantite: 1,
+                isregister: false,
+                loader: false,
+                isSuccess: false,
+                error: false,
+                base_url: window.location.protocol + "//" + window.location.host ,
+            },
+            delimiters: ["${", "}"],
+            mounted() { },
+            methods: {
+                add_to_cart: function () {
+                    if (!this.isregister) {
+                        this.error = false
+                        this.isSuccess = false
+                        this.isregister = true
+                        
+                        if (this.quantite == '0' || this.quantite == '' || this.panier == "" || this.produit == "") {
+                            this.message = "Veuillez renseigner la quantité";
+                            this.error = true
+                            this.isSuccess = false
+                            this.isregister = false;
+                        } else {
+                            axios.defaults.xsrfCookieName = 'csrftoken'
+                            axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+                            axios.post('{% url 'add_to_cart' %}', {
+                                panier: '' + this.panier,
+                                produit: '' + this.produit,
+                                quantite: $("input[name=quantite]").val(),
+                            }).then(response => {
+                                this.isregister = false;
+                                if (response.data.success) {
+                                    this.isSuccess = true
+                                    this.error = false
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    window.location.reload()
+                                } else {
+                                    this.error = true
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.isSuccess = false
+                                }
+                            })
+                                .catch((err) => {
+                                    this.isregister = false;
+                                    console.log(err, 'oooooooooo');
+                                })
+                        }
+                    }
+                },
+            }
+        });
+    </script>
+{% endblock scripts %}

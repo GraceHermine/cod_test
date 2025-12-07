@@ -1,0 +1,109 @@
+{% extends 'base3.html' %}
+{% load static %}
+
+{% block title %}Paramètres de l'Établissement{% endblock title %}
+
+{% block content %}
+<!-- Page Wrap -->
+<div class="pageWrap">
+    <!-- Page content -->
+    <div class="pageContent extended">
+        <div class="container">
+            <!-- Page Header -->
+            <h1 class="pageTitle">
+                <a href="#" title="#">Paramètres de l'Établissement</a>
+            </h1>
+            <ol class="breadcrumb">
+                <li class="active">Modifier vos informations</li>
+            </ol>
+
+            <div class="row">
+                <!-- Profile Form -->
+                <div class="col-xs-12 col-md-12">
+                    <div class="box">
+                        <h2 class="boxTitle">Modifier les informations de votre établissement</h2>
+
+                        {% if messages %}
+                            <div class="alert alert-success">
+                                {% for message in messages %}
+                                    {{ message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+
+                            <!-- Nom de l'Établissement -->
+                            <div class="form-group">
+                                <label for="nom">Nom de l'Établissement</label>
+                                <input type="text" class="form-control" id="nom" name="nom" value="{{ etablissement.nom }}">
+                            </div>
+
+                            <!-- Nom et Prénom du Responsable -->
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="nom_responsable">Nom du Responsable</label>
+                                    <input type="text" class="form-control" id="nom_responsable" name="nom_responsable" value="{{ etablissement.nom_du_responsable }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="prenoms_responsable">Prénom du Responsable</label>
+                                    <input type="text" class="form-control" id="prenoms_responsable" name="prenoms_responsable" value="{{ etablissement.prenoms_duresponsable }}">
+                                </div>
+                            </div>
+
+                            <!-- Contact -->
+                            <div class="form-group">
+                                <label for="contact">Contact</label>
+                                <input type="tel" class="form-control" id="contact" name="contact" value="{{ etablissement.contact_1 }}">
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ etablissement.email }}">
+                            </div>
+
+                            <!-- Ville -->
+                            <div class="form-group">
+                                <select v-model="ville" class="form-control">
+                                    <option disabled value="">Sélectionnez une ville</option>
+                                    {% for c in cities %}
+                                      <option value="{{ c.id }}" {% if etablissement.ville.id == c.id %}selected{% endif %}>
+                                        {{ c.name }}
+                                      </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Adresse -->
+                            <div class="form-group">
+                                <label for="adresse">Adresse</label>
+                                <textarea class="form-control" id="adresse" name="adresse" rows="3">{{ etablissement.adresse }}</textarea>
+                            </div>
+
+                            <!-- Modifier le Logo -->
+                            <div class="form-group">
+                                <label for="logo">Logo de l'Établissement</label><br>
+                                <img src="{{ etablissement.logo.url }}" alt="Logo" width="100" height="100"><br>
+                                <input type="file" class="form-control-file" id="logo" name="logo">
+                            </div>
+
+                            <!-- Modifier la Couverture -->
+                            <div class="form-group">
+                                <label for="couverture">Image de Couverture</label><br>
+                                <img src="{{ etablissement.couverture.url }}" alt="Couverture" width="200" height="100"><br>
+                                <input type="file" class="form-control-file" id="couverture" name="couverture">
+                            </div>
+
+                            <!-- Bouton de soumission -->
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

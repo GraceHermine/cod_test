@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Home</title>
+{% endblock title %}
+
+{% block content %}
+
+        <!--slider section start-->
+        <div class="slider-container">
+			<!-- Slider Image -->
+			<div id="mainSlider" class="nivoSlider slider-image">
+                {% for banniere in bannieres %}
+				<img src="{{ banniere.couverture.url }}" alt="{{ banniere.titre }}" title="#htmlcaption{{forloop.counter}}"/>
+                {% endfor %}
+			</div>
+			
+		</div>
+        <!--slider section end-->
+        <!--welcome section start-->
+        <!-- Slider Caption 1 -->
+
+        
+        <div class="welcome-about">
+   
+            <div class="container">
+                <div class="row">
+                    {% for i in about %}
+                    <div class="col-lg-6 col-sm-12 col-xs-12">
+                        <div class="about-img">
+                            <img src="{{ i.image.url }}" alt="">
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12 col-xs-12">
+                        <div class="about-desc">
+                            <h6>{{ i.sous_titre }}</h6>
+                            <h2>{{ i.titre }}</h2>
+                            <p class="text-1" style="font-size: 16px; text-align: justify; color: black;">{{ i.description }}</p>
+                            <a href="{% url 'about' %}">Lire plus</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--welcome section end-->
+        <!--Offer section start-->
+        <div class="special-offer">
+           <div class="bg-img">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                            <div class="section-title bg_grey text-center" style="color: white;">
+                                <h2 style="color: white;">Trouvez les meilleurs plans et deals</h2>
+                                <p style="color: white;font-size: 16px;">  Notre mission est de mettre à votre disposition les meilleurs plans et deals. Faites vos réservations, Bénéficier de services et produits de qualités</p>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="offer-apoinment text-center">
+                                <a href="{% url 'shop' %}">Découvrir</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Offer section end-->
+        <!--pricing palaning start-->
+        <div class="pricing-plan ptb-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="section-title text-center">
+                            <h2>Coups de coeur</h2>
+                            <p>Retrouvez les meilleures offres du moment.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-n-30px">
+                    {% for prod in produits %}
+                    <div class="col-lg-4 col-md-6 col-xs-12 mb-30px">
+                        <div class="pricing-table text-center" >
+                            {% if prod.image %}
+                            <div>
+                                <img src="{{prod.image.url}}" alt="{{ prod.nom }}">
+                            </div>
+                            {% endif %}
+                            <div class="pricing-title">
+                                <h3>{{ prod.nom }}</h3>
+                            </div>
+                            <div class="pricing-desc">
+                                {% if prod.check_promotion %}
+                                <h4><span style="text-decoration: line-through 2px;"> {{ prod.prix }} </span></h4>
+                                <h4>{{ prod.prix_promotionnel }} F CFA</h4>
+                                {% else %}
+                                <h4> {{ prod.prix }} F CFA</h4>
+                                {% endif %}
+                                <ul>
+                                    <li>{{ prod.description }}</li>
+                                </ul>
+                                <div class="book-now">
+                                    <a href="{% url 'product_detail' prod.slug %}">Détails</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--pricing palaning end-->
+        <!--Testimonial start-->
+        <div class="testimonial">
+            <div class="bg-img">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-6 offset-lg-3 col-md-8 offset-md-2">
+                            <div class="testimonail-list owl_pagination">
+                                {% for appreciation in appreciations %}
+                                <div class="single-testimonial">
+                                    <p><i class="fa fa-quote-left" aria-hidden="true" style="font-size: 16px;"></i> &nbsp; {{ appreciation.description }}</p>
+                                    <h3>{{ appreciation.auteur }}</h3>
+                                    <p class="title">{{ appreciation.role }}</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Testimonial end-->
+        <!--Our partener start-->
+        <div class="our-partner">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="partner-list">
+                            {% for partenaire in partenaires %}
+                            <div class="single-partner">
+                                <a href="#"><img src="{{ partenaire.image.url }}" alt="{{ partenaire.nom }}"></a>.
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Our partener end-->
+
+{% endblock content %}

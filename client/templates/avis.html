@@ -1,0 +1,82 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}
+Avis en attente
+{% endblock title %}
+
+{% block content %}
+<!-- Page Wrap -->
+<div class="pageWrap">
+    <!-- Page content -->
+    <div class="pageContent extended">
+        <div class="container">
+            <!-- Page Header -->
+            <h1 class="pageTitle">
+                <a href="#" title="#">Avis en attente</a>
+            </h1>
+            <ol class="breadcrumb">
+                <li class="active">Évaluer vos produits commandés</li>
+            </ol>
+
+            <!-- Liste des avis en attente -->
+            <div class="row">
+                <!-- Exemples d'avis en attente -->
+                <div class="col-xs-12">
+                    <div class="box">
+                        <h2 class="boxTitle">Produits en attente d'avis</h2>
+                        
+                        <!-- Produit 1 -->
+                        <div class="row product-review">
+                            <div class="col-md-2">
+                                <img src="{% static 'tmp/produit1.jpg' %}" alt="Produit 1" class="img-responsive">
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Déodorant Spray Hommes Silver Protect Nivea Men 200Ml + Déodorant Spray Men Fresh Active Nivea Men 200Ml</h4>
+                                <p>Numéro de commande: <strong>#12345</strong></p>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <a href="{% url 'evaluation-avis' %}" class="btn btn-primary">Évaluer</a>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Produit 2 -->
+                        <div class="row product-review">
+                            <div class="col-md-2">
+                                <img src="{% static 'tmp/produit2.jpg' %}" alt="Produit 2" class="img-responsive">
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Déodorant Spray Hommes Silver Protect Nivea Men 200Ml + Déodorant Spray Men Fresh Active Nivea Men 200Ml</h4>
+                                <p>Numéro de commande: <strong>#12346</strong></p>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <a href="{% url 'evaluation-avis' %}" class="btn btn-primary">Évaluer</a>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Produit 3 -->
+                        <div class="row product-review">
+                            <div class="col-md-2">
+                                <img src="{% static 'tmp/produit3.jpg' %}" alt="Produit 3" class="img-responsive">
+                            </div>
+                            <div class="col-md-6">
+                                <h4>Déodorant Spray Hommes Silver Protect Nivea Men 200Ml + Déodorant Spray Men Fresh Active Nivea Men 200Ml</h4>
+                                <p>Numéro de commande: <strong>#12347</strong></p>
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <a href="{% url 'evaluation-avis' %}" class="btn btn-primary">Évaluer</a>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <!-- Autres produits en attente d'avis -->
+                        <!-- Ajoutez plus de produits ici selon les besoins -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

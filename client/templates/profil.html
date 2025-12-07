@@ -1,0 +1,246 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}
+Mon Profil - Tableau de Bord
+{% endblock title %}
+
+{% block content %}
+
+<style>
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: auto;
+    }
+
+   
+    .profile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, #007BFF, #004c99);
+        padding: 25px;
+        border-radius: 10px;
+        color: white;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .profile-header img {
+        border-radius: 50%;
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border: 3px solid white;
+    }
+
+    .profile-header .user-info {
+        flex: 1;
+        margin-left: 20px;
+    }
+
+    .profile-header .user-info h2 {
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .profile-header .user-info p {
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .profile-header .settings-btn {
+        background: white;
+        color: #007BFF;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: 0.3s ease-in-out;
+    }
+
+    .profile-header .settings-btn:hover {
+        background: #004c99;
+        color: white;
+    }
+
+   
+    .nav-tabs {
+        display: flex;
+        justify-content: space-around;
+        border-bottom: 2px solid #007BFF;
+        margin-top: 20px;
+    }
+
+    .nav-tabs a {
+        color: #007BFF;
+        font-weight: bold;
+        padding: 10px 15px;
+        transition: 0.3s ease-in-out;
+    }
+
+    .nav-tabs a:hover, .nav-tabs .active {
+        background: #007BFF;
+        color: white;
+        border-radius: 10px;
+    }
+
+    
+    .info-card {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+        background: #f8f9fa;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .info-item:hover {
+        background: #e9ecef;
+        transform: scale(1.02);
+    }
+
+    .info-item i {
+        font-size: 24px;
+        color: #007BFF;
+    }
+
+    .info-item h4 {
+        font-size: 16px;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .info-item p {
+        font-size: 14px;
+        color: #555;
+        margin: 0;
+    }
+
+    
+    .order-card {
+        background: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+        transition: 0.3s ease-in-out;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .order-card:hover {
+        transform: scale(1.02);
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-detail {
+        background: #007BFF;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-size: 14px;
+        text-decoration: none;
+        transition: 0.3s ease-in-out;
+    }
+
+    .btn-detail:hover {
+        background: #004c99;
+        transform: scale(1.1);
+    }
+</style>
+
+<div class="pageWrap">
+
+    <div class="pageContent extended">
+        <div class="container">
+            <div class="profile-header">
+                <img src="{{ customer.photo.url }}" alt="Profil utilisateur">
+                <div class="user-info">
+                    <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                    <p>📍 {{ customer.ville }}, {{ customer.pays }}</p>
+                    <p>📧 {{ user.email }}</p>
+                    <p>📞 {{ customer.contact_1 }}</p>
+                </div>
+                <a href="{% url 'parametre' %}" class="settings-btn">⚙️ Modifier Profil</a>
+            </div>
+
+
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="active"><a href="#tab-item-1" data-toggle="tab">À propos</a></li>
+                <li role="presentation"><a href="#tab-item-2" data-toggle="tab">Commandes</a></li>
+            </ul>
+
+
+            <div class="tab-content">
+
+                <div role="tabpanel" class="tab-pane fade in active" id="tab-item-1">
+                    <h2 class="boxHeadline">📌 Mes Informations</h2>
+
+                    <div class="info-card">
+                        <div class="info-item">
+                            <i class="fa fa-user-circle"></i>
+                            <div>
+                                <h4>Nom Complet</h4>
+                                <p>{{ user.first_name }} {{ user.last_name }}</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <i class="fa fa-envelope"></i>
+                            <div>
+                                <h4>Email</h4>
+                                <p>{{ user.email }}</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item">
+                            <i class="fa fa-phone"></i>
+                            <div>
+                                <h4>Téléphone</h4>
+                                <p>{{ customer.contact_1 }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div role="tabpanel" class="tab-pane fade" id="tab-item-2">
+                    <h2 class="boxHeadline">📦 Mes 5 dernières commandes</h2>
+                    {% for commande in dernieres_commandes %}
+                        <div class="order-card">
+                            <div>
+                                <h4>Commande #{{ forloop.counter }}</h4>
+                                <p>📅 {{ commande.date_add|date:"d/m/Y H:i" }}</p>
+                                <p>💵 Total : {{ commande.prix_total|floatformat:0 }} F CFA</p>
+                            </div>
+                            <a href="{% url 'commande-detail' commande_id=commande.id %}" class="btn-detail">🔍 Voir Détail</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

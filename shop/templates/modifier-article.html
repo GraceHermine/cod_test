@@ -1,0 +1,55 @@
+{% extends 'base3.html' %}
+{% load static %}
+
+{% block title %}Modifier l'Article{% endblock title %}
+
+{% block content %}
+<div class="pageWrap">
+    <div class="pageContent extended">
+        <div class="container">
+            <h1 class="pageTitle">✏️ Modifier l'Article</h1>
+
+            <div class="box">
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label>Nom du Produit</label>
+                        <input type="text" class="form-control" name="nom" value="{{ article.nom }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-control" name="description" required>{{ article.description }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Prix</label>
+                        <input type="text" class="form-control" name="prix" value="{{ article.prix }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Catégorie</label>
+                        <select class="form-control" name="categorie" required>
+                            {% for categorie in categories %}
+                                <option value="{{ categorie.id }}" {% if article.categorie.id == categorie.id %}selected{% endif %}>
+                                    {{ categorie.nom }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Images</label>
+                        <input type="file" class="form-control" name="image">
+                        <input type="file" class="form-control" name="image_2">
+                        <input type="file" class="form-control" name="image_3">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

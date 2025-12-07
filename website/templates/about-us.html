@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | About us</title>
+{% endblock title %}
+
+{% block content %}
+
+        <!--Breadcrumbs start-->
+        <div class="breadcrumbs text-center" class="breadcrumbs text-center" style="background: rgba(0, 0, 0, 0) url('{{ infos.couverture_page_about.url }}') no-repeat scroll center center / cover">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12 col-xs-12 col-sm-12">
+                        <div class="breadcrumbs-title">
+                            <h2 style="color: white;">Cool Deal</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}" style="color: white;">HOME <span>//</span></a></li>
+                    <li>A Propos de nous</li>
+                </ul>
+            </div>
+        </div>
+        <!--Breadcrumbs end-->
+        
+        <!--About us start-->
+        <div class="about-us ptb-100">
+            <div class="container">
+                <div class="row">
+                    {% for i in about %}
+                    <div class="col-lg-6 col-sm-12 col-xs-12">
+                        <div class="about-desc">
+                            <h2>{{ i.titre }}</h2>
+                            <p class="text-1" style="font-size: 16px; text-align: justify; color: black;">{{ i.description }}</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-sm-12 col-xs-12">
+                        <div class="about-us-img">
+                            <img src="{{ i.image.url }}" alt="">
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <!--About us end-->
+        <!--choose us start-->
+        <div class="choose-us ptb-100 grey-bg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="section-title bg_grey text-center">
+                            <h2>Pourquoi nous choisir ?</h2>
+                            <p> {{ infos.text_pourquoi_nous_choisir }}.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-7 col-md-6">
+                        <div class="choose-us-img">
+                            <img src="{{ infos.image_session_pourquoi_nous_choisir.url }}" alt="">
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-md-6">
+                        <div class="choose-us-list" style="text-align:justify!important">
+                            {% for i in why_choose %}
+                            <div class="single-choose">
+                                <div class="choose-head">
+                                    <div class="choose-icon">
+                                        <i class="zmdi {{ i.icon }}"></i>
+                                    </div>
+                                    <div class="choose-title">
+                                        <h5>{{ i.titre }}</h5>
+                                    </div> 
+                                </div>
+                                <div class="choose-desc">
+                                    <p>{{ i.description }} </p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--choose us end-->
+{% endblock content %}

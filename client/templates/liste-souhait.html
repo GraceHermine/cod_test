@@ -1,0 +1,71 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}
+Ma liste de souhaits
+{% endblock title %}
+
+{% block content %}
+
+<div class="pageWrap">
+  
+    <div class="pageContent extended">
+        <div class="container">
+           
+            <h1 class="pageTitle">
+                <a href="#" title="#">Ma liste de souhaits</a>
+            </h1>
+            <ol class="breadcrumb">
+                <li class="active">Produits que vous avez ajoutés à votre liste de souhaits</li>
+            </ol>
+
+            
+            <div class="row">
+              {% if favoris %}
+                
+                <div class="col-xs-12">
+                    <div class="box">
+                        <h2 class="boxTitle">Ma liste de souhaits</h2>
+                     {% for favori in favoris %}
+                        <div class="row product-wishlist">
+                            
+                            <div class="col-md-2">
+                                    <img src="{{ favori.produit.image.url }}" alt="{{ favori.produit.nom }}" class="img-responsive">
+                            </div>
+                           
+                            <div class="col-md-6">
+                                <h4>
+                                        {{ favori.produit.nom }}
+                                </h4>
+                                <h4>Description : {{ favori.produit.description|truncatechars:100 }}</h4>
+                                <p>Prix : 
+                                    {% if favori.produit.check_promotion %}
+                                        <span style="text-decoration: line-through;">{{ favori.produit.prix|floatformat:2 }} €</span>
+                                        <strong>{{ favori.produit.prix_promotionnel|floatformat:2 }} €</strong>
+                                    {% else %}
+                                        <strong>{{ favori.produit.prix|floatformat:2 }} €</strong>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            
+                            <div class="col-md-4 text-right">
+                                <a href="{% url 'product_detail' favori.produit.slug %}" class="btn btn-success">Ajouter au panier</a>
+                                <a href="{% url 'toggle_favorite' favori.produit.id %}" class="btn btn-danger">Supprimer</a>
+                            </div>
+                        </div>
+                        <hr>
+                     {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                    <div class="col-xs-12">
+                        <div class="alert alert-info">
+                            Vous n'avez aucun produit dans votre liste de souhaits pour le moment.
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

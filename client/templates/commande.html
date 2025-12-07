@@ -1,0 +1,233 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}
+Suivi des Commandes
+{% endblock title %}
+
+{% block content %}
+
+<style>
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    
+    .search-bar-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .search-bar-form {
+        width: 100%;
+        max-width: 600px;
+    }
+
+    .search-bar {
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border: 2px solid #007BFF;
+        border-radius: 50px;
+        overflow: hidden;
+        transition: 0.3s ease-in-out;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-input {
+        flex: 1;
+        border: none;
+        padding: 15px 20px;
+        font-size: 18px;
+        outline: none;
+        background: transparent;
+        transition: 0.3s ease-in-out;
+    }
+
+    .search-input:focus {
+        background: #f0f8ff;
+    }
+
+    .search-button {
+        background: #007BFF;
+        border: none;
+        color: white;
+        font-size: 20px;
+        padding: 15px 20px;
+        cursor: pointer;
+        transition: 0.3s ease-in-out;
+        border-radius: 50px;
+    }
+
+    .search-button:hover {
+        background: #0056b3;
+        transform: scale(1.1);
+    }
+
+    /* Table Styling */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #007BFF, #004c99);
+        color: white;
+        text-align: center;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s ease-in-out;
+        text-align: center;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f1f1f1;
+        transform: scale(1.02);
+        cursor: pointer;
+    }
+
+    
+    .pagination-container {
+        margin-top: 20px;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .pagination .page-link {
+        border-radius: 50px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .pagination .page-link:hover {
+        background-color: #007BFF;
+        color: white;
+        transform: scale(1.1);
+    }
+
+    
+    .btn-detail {
+        background: linear-gradient(135deg, #007BFF, #004c99);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 25px;
+        transition: 0.3s ease-in-out;
+        font-size: 14px;
+    }
+
+    .btn-detail:hover {
+        background: #0056b3;
+        transform: scale(1.1);
+    }
+
+    
+    .pageTitle {
+        text-align: center;
+        font-weight: bold;
+        font-size: 30px;
+        margin-bottom: 20px;
+        color: #007BFF;
+        animation: fadeIn 1s ease-in-out;
+    }
+</style>
+
+<div class="pageWrap">
+    <div class="pageContent extended">
+        <div class="container">
+            <h1 class="pageTitle">📦 Suivi de Mes Commandes</h1>
+            
+
+           
+            <div class="search-bar-container">
+                <form method="GET" class="search-bar-form">
+                    <div class="search-bar">
+                        <input type="text" name="q" class="search-input" placeholder="🔎 Rechercher une commande (ID, produit, date)" value="{{ query }}">
+                        <button type="submit" class="search-button">🔍</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="box box-without-bottom-padding">
+                <h2 class="text-primary text-center">Historique des Commandes</h2>
+                <p class="text-muted text-center mb-4">📝 Consultez l'historique complet de vos commandes</p>
+
+                <div class="tableWrap dataTable table-responsive js-select">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>🛍️ Produit</th>
+                                <th>🆔 Opération</th>
+                                <th>🔑 Transaction</th>
+                                <th>📅 Paiement</th>
+                                <th>🔢 Quantité</th>
+                                <th>💰 Prix Unitaire</th>
+                                <th>💵 Total</th>
+                                <th>🔍 Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for data in commandes_data %}
+                                {% for produit_panier in data.produits %}
+                                    <tr>
+                                        <td>{{ produit_panier.produit.nom }}</td>
+                                        <td>{{ data.commande.id_paiment }}</td>
+                                        <td>{{ data.commande.transaction_id }}</td>
+                                        <td>{{ data.commande.date_add|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ produit_panier.quantite }}</td>
+                                        <td>{{ produit_panier.produit.prix|floatformat:0 }} F CFA</td>
+                                        <td>{{ produit_panier.total|floatformat:0 }} F CFA</td>
+                                        <td>
+                                            <a href="{% url 'commande-detail' commande_id=data.commande.id %}" class="btn-detail">
+                                                🔍 Voir Détail
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% empty %}
+                                <tr>
+                                    <td colspan="8" class="text-center text-danger">🚫 Aucune commande trouvée</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                
+                <div class="pagination-container">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if commandes_paginated.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1&q={{ query }}">&laquo; Première</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ commandes_paginated.previous_page_number }}&q={{ query }}">Précédente</a>
+                                </li>
+                            {% endif %}
+
+                            <li class="page-item disabled">
+                                <span class="page-link">Page {{ commandes_paginated.number }} / {{ commandes_paginated.paginator.num_pages }}</span>
+                            </li>
+
+                            {% if commandes_paginated.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ commandes_paginated.next_page_number }}&q={{ query }}">Suivante</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ commandes_paginated.paginator.num_pages }}&q={{ query }}">Dernière &raquo;</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

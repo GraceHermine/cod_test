@@ -1,0 +1,127 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}
+Détail de la Commande
+{% endblock title %}
+
+{% block content %}
+
+<style>
+    .receipt-container {
+        background: #ffffff;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .receipt-header {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .receipt-header img {
+        max-width: 120px;
+    }
+
+    .receipt-details p {
+        font-size: 16px;
+        margin-bottom: 8px;
+    }
+
+    .table th {
+        background: #007BFF;
+        color: white;
+        text-align: center;
+    }
+
+    .table td {
+        text-align: center;
+    }
+
+    .print-button {
+        display: block;
+        width: 200px;
+        margin: 20px auto;
+        padding: 10px;
+        font-size: 16px;
+        text-align: center;
+        background: #007BFF;
+        color: white;
+        border-radius: 50px;
+        transition: 0.3s ease-in-out;
+    }
+
+    .print-button:hover {
+        background: #0056b3;
+        transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="pageWrap">
+    <div class="pageContent extended">
+        <div class="container">
+            <h1 class="pageTitle">🧾 Détail de la Commande</h1>
+            <ol class="breadcrumb">
+                <li><a href="{% url 'commande' %}">📦 Mes Commandes</a></li>
+                <li class="active">🛒 Détail de la Commande</li>
+            </ol>
+
+            <div class="box receipt-container" id="receipt">
+              
+                <div class="receipt-header">
+                    <img src="{% static 'tmp/logo.png' %}" alt="Logo Entreprise" class="img-responsive">
+                    <h2>Reçu de Commande</h2>
+                </div>
+
+               
+                <div class="receipt-details">
+                    <p><strong>🆔 ID Opération :</strong> {{ commande.id_paiment }}</p>
+                    <p><strong>🔑 ID Transaction :</strong> {{ commande.transaction_id }}</p>
+                    <p><strong>📅 Date de Paiement :</strong> {{ commande.date_add|date:"d/m/Y H:i" }}</p>
+                    <p><strong>💵 Total Payé :</strong> {{ commande.prix_total|floatformat:0 }} F CFA</p>
+                </div>
+
+                <hr>
+
+               
+                <h4 class="text-center">📦 Produits de la commande</h4>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>🛍️ Produit</th>
+                            <th>🔢 Quantité</th>
+                            <th>💰 Prix Unitaire</th>
+                            <th>💵 Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for produit_panier in produits_commande %}
+                            <tr>
+                                <td>{{ produit_panier.produit.nom }}</td>
+                                <td>{{ produit_panier.quantite }}</td>
+                                <td>{{ produit_panier.produit.prix|floatformat:0 }} F CFA</td>
+                                <td>{{ produit_panier.total|floatformat:0 }} F CFA</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <hr>
+
+                
+                <a href="{% url 'invoice_pdf' order_id=commande.id  %}" class="print-button">🖨️ Télécharger le Reçu</a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock content %}

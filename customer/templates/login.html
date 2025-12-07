@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Login</title>
+{% endblock title %}
+
+{% block content %}
+
+        <!--Breadcrumbs start-->
+        <div class="breadcrumbs text-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="breadcrumbs-title">
+                            <h2>Login</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}">HOME <span>//</span></a></li>
+                    <li>Login</li>
+                </ul>
+            </div>
+        </div>
+
+        <!--Contact form start-->
+        <div class="contact-form ptb-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="section-title text-center">
+                            <h2>Connexion</h2>
+                            <p>Connectez-vous pour une meilleure expérience.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 col-xs-12 order-md-2">
+                        <div class="contact-form-img text-center">
+                            <img src="{% static 'images/common/contact.jpg' %}" alt="">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12 col-xs-12 order-md-1" id="login">
+                        <div class="contact-form">
+                            <p class="form-messege"></p>
+                            {% csrf_token %}
+                            <div v-if="isSuccess" class="alert alert-success" role="alert">
+                                ${ message }
+                            </div>
+                            <div v-if="error" class="alert alert-danger" role="alert">
+                                ${ message }
+                            </div>
+                            <form id="contact-form" method="post">
+                                <input name="username"  v-model="username" type="text" placeholder="Nom d'utilisateur">
+                                <input name="password" v-model="password"  type="password" placeholder="Mot de passe">
+                                <button type="submit" v-if="!isregister"  v-on:click.prevent="login">Submit</button>
+                                <button type="submit" v-if="isregister"  disabled>Submit</button>
+                            </form>
+                            <br>
+                            <p> Vous n'avez-pas de compte : <a href="{% url 'guests_signup' %}">Inscrivez-vous</a></p>
+                            <p><a href="{% url 'request_reset_password' %}">Mot de passe oublié ?</a></p>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Contact form end-->
+        
+{% endblock content %}
+
+{% block scripts %}
+
+   <!-- axios -->
+   <script src="{% static 'js/axios.js' %}"></script>
+
+   <!-- vue -->
+   <script src="{% static 'js/vue.js' %}"></script>
+
+   <script>
+        // Block Vue JS
+        new Vue({
+            el: '#login',
+            data: {
+                username: '',
+                password: '',
+                isregister: false,
+                loader: false,
+                isSuccess: false,
+                error: false,
+                base_url: window.location.protocol + "//" + window.location.host ,
+            },
+            delimiters: ["${", "}"],
+            mounted() { },
+            methods: {
+                login: function () {
+                    if (!this.isregister) {
+                        this.error = false
+                        this.isSuccess = false
+                        this.isregister = true
+                        if (this.username == "" || this.password == "") {
+                            this.message = "Veuillez remplir correctement les champs";
+                            this.error = true
+                            this.isSuccess = false
+                            this.isregister = false;
+                        } else {
+                            axios.defaults.xsrfCookieName = 'csrftoken'
+                            axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+                            axios.post('{% url 'post' %}', {
+                                username: '' + this.username,
+                                password: '' + this.password,
+                            }).then(response => {
+                                this.isregister = false;
+                                if (response.data.success) {
+                                    this.isSuccess = true
+                                    this.error = false
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    console.log('{{{{{{{{{{{{{{{{{{{{{{')
+                                    var url_string = window.location.href;
+                                    console.log(url_string)
+                                    var url = new URL(url_string);
+                                    console.log(url)
+                                    var next = url.searchParams.get("next");
+                                    console.log(next)
+                                    if (next != "" && next != null){
+                                        window.location.replace(this.base_url + next);
+                                    }else{
+                                        console.log(this.base_url, '€€€€€€€€€€€€€€€€€€€')
+                                        window.location.replace(this.base_url);
+                                    }
+                                } else {
+                                    this.error = true
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.isSuccess = false
+                                }
+                            })
+                                .catch((err) => {
+                                    this.isregister = false;
+                                    console.log(err, 'oooooooooo');
+                                })
+                        }
+                    }
+                },
+            }
+        });
+    </script>
+{% endblock scripts %}

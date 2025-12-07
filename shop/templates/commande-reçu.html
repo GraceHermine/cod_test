@@ -1,0 +1,200 @@
+{% extends 'base3.html' %}
+{% load static %}
+
+{% block title %}Mes Commandes{% endblock title %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4f6f9;
+    }
+
+    .pageTitle {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: left;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .filter-container {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .filter-container input,
+    .filter-container select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .filter-container button {
+        background: linear-gradient(135deg, #556270, #FF6B6B);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: 0.3s ease-in-out;
+    }
+
+    .filter-container button:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .box {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .tableWrap {
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+    }
+
+    table thead tr {
+        background: #556270;
+        color: white;
+    }
+
+    table th, table td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .detail-btn {
+        color: #556270;
+        font-size: 18px;
+    }
+
+    .detail-btn:hover {
+        color: #FF6B6B;
+    }
+
+    /* Pagination */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
+    }
+
+    .pagination a {
+        background: linear-gradient(135deg, #556270, #FF6B6B);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .pagination a:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .pagination span {
+        font-weight: bold;
+        color: #333;
+        padding: 8px 12px;
+    }
+</style>
+
+<div class="pageWrap">
+    <div class="pageContent extended">
+        <div class="container">
+            <h1 class="pageTitle">📦 Mes Commandes</h1>
+
+            <!-- 🔍 FORMULAIRE DE RECHERCHE -->
+            <form method="GET" class="filter-container">
+                <input type="text" name="client" placeholder="Rechercher par client..." value="{{ request.GET.client }}">
+                <input type="text" name="produit" placeholder="Rechercher par produit..." value="{{ request.GET.produit }}">
+                <select name="status">
+                    <option value="">Statut</option>
+                    <option value="payée" {% if request.GET.status == 'payée' %}selected{% endif %}>✅ Payée</option>
+                    <option value="attente" {% if request.GET.status == 'attente' %}selected{% endif %}>⏳ En attente</option>
+                </select>
+                <input type="date" name="date_min" value="{{ request.GET.date_min }}">
+                <input type="date" name="date_max" value="{{ request.GET.date_max }}">
+
+                <button type="submit">🔍 Rechercher</button>
+                <a href="{% url 'commande-reçu' %}" class="btn btn-secondary">🔄 Réinitialiser</a>
+            </form>
+
+            <div class="box">
+                <h2 class="boxHeadline">Liste de vos commandes</h2>
+                <h3 class="boxHeadlineSub">Vous trouverez toutes les commandes de vos clients</h3>
+
+                <div class="tableWrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Nom du Produit</th>
+                                <th>Client</th>
+                                <th>Prix Total</th>
+                                <th>Date</th>
+                                <th>Détails</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderTable">
+                            {% for commande in commandes %}
+                            <tr>
+                                <td>{{ commande.produit_commande.first.produit.nom }}</td>
+                                <td>{{ commande.customer.user.first_name }} {{ commande.customer.user.last_name }}</td>
+                                <td>{{ commande.prix_total }}€</td>
+                                <td>{{ commande.date_add|date:"d-m-Y" }}</td>
+                                <td><a href="{% url 'commande-reçu-detail' commande.id %}" class="detail-btn"><i class="zmdi zmdi-eye"></i></a></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">Aucune commande enregistrée.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION -->
+                <div class="pagination">
+                    {% if commandes.has_previous %}
+                        <a href="?page=1">&laquo; Premier</a>
+                        <a href="?page={{ commandes.previous_page_number }}">Précédent</a>
+                    {% endif %}
+
+                    <span>Page {{ commandes.number }} sur {{ commandes.paginator.num_pages }}</span>
+
+                    {% if commandes.has_next %}
+                        <a href="?page={{ commandes.next_page_number }}">Suivant</a>
+                        <a href="?page={{ commandes.paginator.num_pages }}">Dernier &raquo;</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

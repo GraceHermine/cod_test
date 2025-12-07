@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Contact</title>
+{% endblock title %}
+
+{% block content %}
+
+        <!--Breadcrumbs start-->
+        <div class="breadcrumbs text-center" style="background: rgba(0, 0, 0, 0) url('{{ infos.couverture_page_contact.url }}') no-repeat scroll center center / cover">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="breadcrumbs-title">
+                            <h2 style="color: white;">Contactez-nous</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}" style="color: white;">Accueil <span>//</span></a></li>
+                    <li>Contactez-Nous</li>
+                </ul>
+            </div>
+        </div>
+        <!--Breadcrumbs end-->
+        <div id="contact-map" class="map-area">
+            <div class="mapouter">
+                <div class="gmap_canvas">
+                    <iframe id="gmap_canvas" style="width:100%;height:500px;" src="{{ infos.map_url }}"></iframe>
+                    <a href="https://sites.google.com/view/maps-api-v2/mapv2"></a>
+                </div>
+            </div>
+        </div> 
+        <!--Contact start-->
+        <div class="contact-us">
+            <div class="container">
+                <div class="contact-list fix">
+                    <div class="row">
+                        <div class="col-md-4 col-sm-12 col-xs-12">
+                            <div class="single-contact">
+                                <div class="contact-icon">
+                                    <a href="#"><i class="zmdi zmdi-phone"></i></a>
+                                </div>
+                                <div class="contact-desc">
+                                    <p>{{ infos.contact_1 }}<br>{{ infos.contact_2 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12 col-xs-12">
+                            <div class="single-contact text-center">
+                                <div class="contact-icon">
+                                    <a href="#"><i class="zmdi zmdi-dribbble"></i></a>
+                                </div>
+                                <div class="contact-desc">
+                                    <p>{{ infos.email }}<br>{{ infos.email_2 }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 col-sm-12 col-xs-12">
+                            <div class="single-contact float-right">
+                                <div class="contact-icon">
+                                    <a href="#"><i class="zmdi zmdi-pin"></i></a>
+                                </div>
+                                <div class="contact-desc">
+                                    <p>{{ infos.adresse }} <br> Grand-Bassam, Côte d'Ivoire</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Contact end-->
+        <!--Contact form start-->
+        <div class="contact-form ptb-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="section-title text-center">
+                            <h2>Contactez-nous</h2>
+                            <p>Avez-vous une question, Avez-vous besoin d'assistance, Merci de nous laisser un message !</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 col-sm-12 col-xs-12 order-md-2">
+                        <div class="contact-form-img text-center">
+                            {% if infos.image_page_contact %}
+                            <img src="{{ infos.image_page_contact.url }}" alt="">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12 col-xs-12 order-md-1" id="contact">
+                        <div class="contact-form">
+                            <p class="form-messege"></p>
+                            {% csrf_token %}
+                            <div v-if="isSuccess" class="alert alert-success" role="alert">
+                                ${ message }
+                            </div>
+                            <div v-if="error" class="alert alert-danger" role="alert">
+                                ${ message }
+                            </div>
+                            <form id="contact-form" action="https://whizthemes.com/nazmul/php/mail.php" method="post">
+                                <input v-model="nom" type="text" placeholder="Nom complet">
+                                <input v-model="email" type="email" placeholder="Email">
+                                <input v-model="sujet" type="text" placeholder="Sujet">
+                                <textarea v-model="messages" placeholder="Message"></textarea>
+                                <button type="submit"  v-if="!isregister"  v-on:click.prevent="post_contact">Submit</button>
+                                <button type="submit"  v-if="isregister" disabled>Envoyer</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Contact form end-->
+        
+{% endblock content %}
+
+{% block scripts %}
+
+   <!-- axios -->
+   <script src="{% static 'js/axios.js' %}"></script>
+
+   <!-- vue -->
+   <script src="{% static 'js/vue.js' %}"></script>
+
+   <script>
+        // Block Vue JS
+        new Vue({
+            el: '#contact',
+            data: {
+                nom: '',
+                email: '',
+                sujet: '',
+                messages: '',
+                isregister: false,
+                loader: false,
+                isSuccess: false,
+                error: false,
+                base_url: window.location.protocol + "//" + window.location.host ,
+            },
+            delimiters: ["${", "}"],
+            mounted() { },
+            methods: {
+                post_contact: function () {
+                    if (!this.isregister) {
+                        this.error = false
+                        this.isSuccess = false
+                        this.isregister = true
+                        if (this.nom == "" || this.sujet == "" || this.email == "" || this.messages == "") {
+                            this.message = "Veuillez remplir correctement les champs";
+                            this.error = true
+                            this.isSuccess = false
+                            this.isregister = false;
+                        } else {
+                            axios.defaults.xsrfCookieName = 'csrftoken'
+                            axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+                            axios.post('{% url 'post_contact' %}', {
+                                email: '' + this.email,
+                                nom: '' + this.nom,
+                                sujet: '' + this.sujet,
+                                messages: '' + this.messages,
+                            }).then(response => {
+                                this.isregister = false;
+                                if (response.data.success) {
+                                    this.isSuccess = true
+                                    this.error = false
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.messages = ""
+                                    this.email = ""
+                                    this.sujet = ""
+                                    this.nom = ""
+
+                                } else {
+                                    this.error = true
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.isSuccess = false
+                                }
+                            })
+                                .catch((err) => {
+                                    this.isregister = false;
+                                    console.log(err, 'oooooooooo');
+                                })
+                        }
+                    }
+                },
+            }
+        });
+    </script>
+{% endblock scripts %}

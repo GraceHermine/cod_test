@@ -1,0 +1,228 @@
+{% extends 'base3.html' %}
+{% load static %}
+
+{% block title %}Inventaire des Articles{% endblock title %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4f6f9;
+    }
+
+    .pageTitle {
+        font-size: 28px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        text-align: center;
+        color: #333;
+    }
+
+    .box {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .boxHeadline {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        border-bottom: 2px solid #FF6B6B;
+        padding-bottom: 10px;
+    }
+
+    .tableWrap {
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        border-radius: 8px;
+    }
+
+    table thead tr {
+        background: #556270;
+        color: white;
+    }
+
+    table th, table td {
+        padding: 12px;
+        text-align: center;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .actions {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .actions a {
+        color: #556270;
+        font-size: 18px;
+        transition: color 0.3s;
+        text-decoration: none;
+    }
+
+    .actions a:hover {
+        color: #FF6B6B;
+    }
+
+    .btn-ajout {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #FF6B6B, #556270);
+        color: white;
+        padding: 15px 25px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: bold;
+        transition: all 0.3s ease-in-out;
+        font-size: 16px;
+        margin-bottom: 20px;
+    }
+
+    .btn-ajout i {
+        margin-right: 10px;
+    }
+
+    .btn-ajout:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .search-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 20px;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .search-box {
+        display: none;
+        width: 50%;
+        margin-top: 10px;
+    }
+
+    .search-box input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+    }
+
+    .btn-search-toggle {
+        background: linear-gradient(135deg, #556270, #FF6B6B);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        border: none;
+        transition: all 0.3s ease-in-out;
+    }
+
+    .btn-search-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+    }
+</style>
+
+<div class="pageWrap">
+    <div class="pageContent extended">
+        <div class="container">
+            <h1 class="pageTitle">📦 Inventaire des Articles</h1>
+            
+            <a href="{% url 'ajout-article' %}" class="btn-ajout"><i class="zmdi zmdi-plus"></i> Ajouter un article</a>
+            
+            <!-- Filtre de recherche -->
+            <div class="search-container">
+                <button class="btn-search-toggle" onclick="toggleSearchBox()">🔍 Afficher la recherche</button>
+                <div class="search-box" id="searchBox">
+                    <input type="text" id="searchInput" placeholder="Rechercher un article..." onkeyup="filterTable()">
+                </div>
+            </div>
+
+            <div class="box">
+                <h2 class="boxHeadline">Liste des Articles</h2>
+                
+                <div class="tableWrap">
+                    <table id="articleTable">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Catégorie</th>
+                                <th>Prix</th>
+                                <th>Stock</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for article in articles %}
+                            <tr>
+                                <td>{{ article.nom }}</td>
+                                <td>{{ article.categorie.nom }}</td>
+                                <td>{{ article.prix }} €</td>
+                                <td>
+                                    {% if article.status %}
+                                        <span class="text-green"><strong>En Stock</strong></span>
+                                    {% else %}
+                                        <span class="text-red"><strong>Indisponible</strong></span>
+                                    {% endif %}
+                                </td>
+                                <td class="actions">
+                                    <a href="{% url 'product_detail' article.slug %}"><i class="zmdi zmdi-eye"></i></a>
+                                    <a href="{% url 'modifier' article.id %}"><i class="zmdi zmdi-edit"></i></a>
+                                    <a href="{% url 'supprimer-article' article.id %}" title="Supprimer" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                                        <i class="zmdi zmdi-delete"></i>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" style="text-align: center; color: red;">Aucun article trouvé pour cet établissement.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSearchBox() {
+        var searchBox = document.getElementById("searchBox");
+        searchBox.style.display = searchBox.style.display === "none" || searchBox.style.display === "" ? "block" : "none";
+    }
+
+    function filterTable() {
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("articleTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 1; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+            }
+        }
+    }
+
+    function confirmDelete(articleId) {
+        if (confirm("Voulez-vous vraiment supprimer cet article ?")) {
+            window.location.href = "/supprimer-article/" + articleId;
+        }
+    }
+</script>
+{% endblock content %}

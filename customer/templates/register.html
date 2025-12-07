@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Inscription</title>
+{% endblock title %}
+
+{% block content %}
+
+        <!--Breadcrumbs start-->
+        <div class="breadcrumbs text-center">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="breadcrumbs-title">
+                            <h2>Inscription</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}">Home <span>//</span></a></li>
+                    <li>Inscription</li>
+                </ul>
+            </div>
+        </div>
+
+        <!--Contact form start-->
+        <div class="contact-form ptb-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 offset-md-2">
+                        <div class="section-title text-center">
+                            <h2>Inscription</h2>
+                            <p>Offrez-vous la meilleure expérience.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" id="registration">
+                    <div class="col-md-6 col-sm-12 col-xs-12 order-md-2">
+                        <form id="contact-form"  method="post">
+                            <input type="text"  v-model="username" placeholder="Nom d'utilisateur">
+                            <input type="email"  v-model="email" placeholder="Email">
+                            <input type="password" v-model="password" placeholder="Mot de passe">
+                            <input type="password" v-model="passwordconf" placeholder="Confirmez le mot de passe">
+                        </form>
+                        <div v-if="previewUrl!=''" style="width:100px!important" class="contact-form-img text-center">
+                            <img :src="previewUrl" alt="">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-sm-12 col-xs-12 order-md-1" >
+                        <div class="contact-form">
+                            <p class="form-messege"></p>
+                            {% csrf_token %}
+                            <div v-if="isSuccess" class="alert alert-success" role="alert">
+                                ${ message }
+                            </div>
+                            <div v-if="error" class="alert alert-danger" role="alert">
+                                ${ message }
+                            </div>
+                            <form id="contact-form"  method="post">
+                                <input v-model="nom" type="text" placeholder="Nom">
+                                <input type="text" v-model="prenoms"  placeholder="Prénoms">
+
+                                <input type="text"  v-model="phone" placeholder="Contact">
+                                <select v-model="ville">
+                                  <option disabled value="">Sélectionnez une ville</option>
+                                  {% for c in cities %}
+                                  <option key="{{c.id}}" value="{{c.id}}">
+                                      {{ c.name }}
+                                  </option>
+                                  {% endfor %}
+                                </select>
+                                <br/>
+                                <br/>
+                                <input type="text" v-model="adresse" placeholder="Adresse">
+                                <input type="file" v-on:change="handleFileUploaded()" id="file" ref="file" class="form-control" placeholder="Photo de profil">
+
+                                <button type="submit"  v-if="!isregister"  v-on:click.prevent="register">Submit</button>
+                                <button type="submit"  v-if="isregister" disabled>Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--Contact form end-->
+        
+{% endblock content %}
+
+
+{% block scripts %}
+
+   <!-- axios -->
+   <script src="{% static 'js/axios.js' %}"></script>
+
+   <!-- vue -->
+   <script src="{% static 'js/vue.js' %}"></script>
+
+   <script>
+        // Block Vue JS
+        new Vue({
+            el: '#registration',
+            data: {
+                username: '',
+                email: '',
+                password: '',
+                passwordconf: '',
+                nom: '',
+                prenoms: '',
+                phone: '',
+                ville: '',
+                adresse: '',
+                file: '',
+                previewUrl: '',
+                isregister: false,
+                loader: false,
+                isSuccess: false,
+                error: false,
+                base_url: window.location.protocol + "//" + window.location.host ,
+            },
+            delimiters: ["${", "}"],
+            mounted() {
+
+            },
+            methods: {
+                register: function () {
+                    if (!this.isregister) {
+                        this.error = false
+                        this.isSuccess = false
+                        this.isregister = true
+                        if (this.ville == "" || this.nom == "" || this.prenoms == "" || this.username == "" || this.password == "" || this.passwordconf == "" || this.email == "" || this.phone == "") {
+                            this.message = "Veuillez remplir correctement les champs";
+                            this.error = true
+                            this.isSuccess = false
+                            this.isregister = false;
+                        } else {
+                            let formData = new FormData();
+                            formData.append('username', this.username);
+                            formData.append('email', this.email);
+                            formData.append('password', this.password);
+                            formData.append('passwordconf', this.passwordconf);
+                            formData.append('nom', this.nom);
+                            formData.append('prenoms', this.prenoms);
+                            formData.append('phone', this.phone);
+                            formData.append('ville', this.ville);
+                            formData.append('adresse', this.adresse);
+                            formData.append('file', this.file);
+                            axios.defaults.xsrfCookieName = 'csrftoken'
+                            axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+                            axios.post('{% url 'inscription' %}', formData,{
+                                headers: {
+
+                                    'Content-Type': 'multipart/form-data',
+                                }
+                            }).then(response => {
+                                this.isregister = false;
+                                if (response.data.success) {
+                                    this.isSuccess = true
+                                    this.error = false
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    var url_string = window.location.href;
+                                    console.log(url_string)
+                                    var url = new URL(url_string);
+                                    console.log(url)
+                                    var next = url.searchParams.get("next");
+                                    console.log(next)
+                                    if (next != "" && next != null){
+                                        window.location.replace(this.base_url + next);
+                                    }else{
+                                        window.location.replace(this.base_url);
+                                    }
+                                } else {
+                                    this.error = true
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.isSuccess = false
+                                }
+                            })
+                                .catch((err) => {
+                                    this.isregister = false;
+                                    console.log(err, 'oooooooooo');
+                                })
+
+                        }
+                    }
+                },
+                handleFileUploaded: function() {
+                    const file = event.target.files[0]
+                    this.file = this.$refs.file.files[0];
+                    console.log(file)
+                    const reader = new FileReader()
+                    const that = this
+
+                    reader.onload = function (e) {
+                        that.previewUrl = e.target.result
+                    }
+                    reader.readAsDataURL(file)
+                },
+
+            }
+        });
+    </script>
+{% endblock scripts %}

@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Paiement</title>
+{% endblock title %}
+
+{% block content %}
+
+        
+        <div class="breadcrumbs text-center" class="breadcrumbs text-center" style="background: rgba(0, 0, 0, 0) url('{{ infos.couverture_page_paiement.url }}') no-repeat scroll center center / cover">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="breadcrumbs-title">
+                            <h2 style="color: white;">Mes commandes</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}" style="color: white;">HOME <span>//</span></a></li>
+                    <li>Mes commandes</li>
+                </ul>
+            </div>
+        </div>
+        <!--Breadcrumbs end-->
+         <!-- checkout start -->
+        <div class="checkout-area ptb-100" id="checkout">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-sm-12 col-xs-12">
+                        <h5 class="mb-30"> Historique des commandes</h5>
+                        <div class="table-responsive">
+                            <table class="table ">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Date</th>
+                                        <th>Détails</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for commande in commandes %}
+                                    {% if commande.check_paiement %}
+                                    <tr class="table-success">
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ commande.date_add|date:"d F Y H:i:s" }}</td>
+                                        <td>
+                                            <table class="table ">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Produit</th>
+                                                        <th>Quantite</th>
+                                                        <th>Prix unitaire</th>
+                                                        <th>Total</th>
+                                                        
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for line in commande.produit_commande.all %}
+                                                    <tr>
+                                                        <td>{{line.produit.nom}}</td>
+                                                        <td>{{line.produit.quantite}}</td>
+                                                        <td>{{line.produit.prix}}</td>
+                                                        <td>{{line.produit.total}}</td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td>Payée</td>
+                                        <td>Télécharger</td>
+                                    </tr>
+                                    {% else %}
+                                    <tr class="table-danger">
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td>{{ commande.date_add|date:"d F Y H:i:s" }}</td>
+                                        <td>
+                                            <table class="table ">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Produit</th>
+                                                        <th>Quantite</th>
+                                                        <th>Prix unitaire</th>
+                                                        <th>Total</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for line in commande.produit_commande.all %}
+                                                    <tr>
+                                                        <td>{{line.produit.nom}} </td>
+                                                        <td>{{line.quantite}} </td>
+                                                        <td>{{line.produit.prix}} </td>
+                                                        <td>{{line.total}} </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td>Paiement échoué</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                    <div class="col-md-3 col-md-offset-1 col-sm-12 col-xs-12">
+                        <div class="checkout-right">
+                            <div class="checkout-progress">
+                                <h4>Détails</h4>
+                            </div>
+                            <ul>
+                                <li><a href="#">- Informations personnelles</a></li>
+                                <li><a href="#">- Information de paiement</a></li>
+                                <li><a href="#">- Détails Paiement</a></li>
+                            </ul>
+                        </div>
+                    </div>    
+                </div>
+            </div>
+        </div>
+        <!-- checkout end --> 
+{% endblock content %}
+
+
+{% block scripts %}
+{% endblock scripts %}

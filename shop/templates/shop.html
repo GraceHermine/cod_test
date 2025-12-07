@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Shop</title>
+{% endblock title %}
+
+{% block content %}
+
+        <!--Breadcrumbs start-->
+        {% if categorie.couverture %}
+        <div class="breadcrumbs text-center" class="breadcrumbs text-center" style="background: rgba(0, 0, 0, 0) url('{{ categorie.couverture.url }}') no-repeat scroll center center / cover">
+        {% else %}
+        <div class="breadcrumbs text-center" class="breadcrumbs text-center" style="background: rgba(0, 0, 0, 0) url('{{ infos.couverture_page_shop.url }}') no-repeat scroll center center / cover">
+        {% endif %}
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="breadcrumbs-title" style="width: auto; margin: auto;">
+                            {% if categorie %}
+                            <h2 style="color: white;">{{ categorie.nom }}</h2>
+                            {% else %}
+                            <h2 style="color: white;">Deals de la région</h2>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}" style="color: white;">Accueil <span>//</span></a></li>
+                    <li>Deals</li>
+                    {% if categorie %}
+                    <li>// {{ categorie.nom }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <!--Breadcrumbs end-->
+        <!--shop page start-->
+        <div class="shop-page ptb-100">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9 col-sm-12 col-xs-12 order-lg-2">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="shop-item-filter d-md-flex">
+                                    <div class="col-lg-3 col-md-3 col-xs-12">
+                                        <div class="shop-tab clearfix">
+                                            <!-- Nav tabs -->
+                                            <ul class="nav navs-tab" role="tablist">
+                                                <li role="presentation" class="active"><a data-bs-toggle="tab" role="tab" aria-controls="grid" class="grid-view" href="#grid"><i class="zmdi zmdi-apps"></i></a></li>
+                                                <li role="presentation"><a data-bs-toggle="tab" role="tab" aria-controls="list" class="list-view" href="#list"><i class="zmdi zmdi-view-list-alt"></i></a></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>       
+                        </div>
+                        <div class="tab-content">
+                            <div id="grid" class="tab-pane active" role="tabpanel">
+                                <div class="row">
+                                    {% for produit in produits %}
+                                    <div class="col-lg-4 col-md-6 col-xs-12">
+                                        <div class="single-feature text-center">
+                                            <div class="feature-img">
+                                                <img src="{{ produit.image.url }}" alt="{{ produit.nom }}">
+                                            </div>
+                                            <div class="feature-desc">
+                                                <h3><a href="{% url 'product_detail' produit.slug %}">{{ produit.nom }}</a></h3>
+                                                {% if produit.check_promotion %}
+                                                    <p><span style="text-decoration: line-through 2px;"> {{ produit.prix }} </span></p>
+                                                    <p>{{ produit.prix_promotionnel }} F CFA</p>
+                                                {% else %}
+                                                <p> {{ produit.prix }} F CFA</p>
+                                                {% endif %}
+
+                                                <a href="{% url 'product_detail' produit.slug %}">Voir plus</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <!--pagintaion-->
+                                <div class="pagination-box text-center">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="pagination-inner">
+                                                <ul>
+                                                    <li><a href="#"><i class="zmdi zmdi-caret-left"></i></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li><a href="#">2</a></li>
+                                                    <li class="active">3</li>
+                                                    <li><a href="#">4</a></li>
+                                                    <li><a href="#"><i class="zmdi zmdi-caret-right"></i></a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <!--pagintaion end-->
+                                
+                            </div>
+                            <div id="list" class="tab-pane" role="tabpanel">
+                                <div class="row">
+                                    {% for produit in produits %}
+                                    <div class="shop-product-list col-md-12">
+                                        <div class="single-product">
+                                            <div class="single-product-img">
+                                                <a href="{% url 'product_detail' produit.slug %}"><img src="{{ produit.image.url }}" alt="{{ produit.nom }}"></a>
+                                            </div>
+                                            <div class="single-product-info">
+                                                <h3><a href="{% url 'product_detail' produit.slug %}">{{ produit.nom }}</a></h3>
+                                                {% if produit.check_promotion %}
+                                                <h4><span style="text-decoration: line-through;">  {{ produit.prix }}   </span> &nbsp; &nbsp; {{ produit.prix_promotionnel }} F CFA</h4>
+                                                {% else %}
+                                                <h4> {{ produit.prix }} F CFA</h4>
+                                                {% endif %}
+                                                <h5>AVAILABILITY: <span>IN STOCK</span></h5>
+                                                <div class="singe-product-desc">
+                                                    <p>{{ produit.description }}</p>
+                                                </div>
+                                                <ul class="product-action">
+                                                    <li><a href="#"><i class="zmdi zmdi-refresh"></i></a></li>
+                                                    <li><a href="{% url 'product_detail' produit.slug %}" class="add-to-cart">Voir plus</a></li>
+                                                    <li><a href="#"><i class="zmdi zmdi-favorite-outline"></i></a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                <!--pagintaion-->
+                                <div class="pagination-box text-center">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="pagination-inner">
+                                                <ul>
+                                                    <li><a href="#"><i class="zmdi zmdi-caret-left"></i></a></li>
+                                                    <li><a href="#">1</a></li>
+                                                    <li><a href="#">2</a></li>
+                                                    <li class="active">3</li>
+                                                    <li><a href="#">4</a></li>
+                                                    <li><a href="#"><i class="zmdi zmdi-caret-right"></i></a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <!--pagintaion end-->    
+                            </div>    
+                        </div>
+                    </div>
+                    <!--shop sidebar end-->
+                    <div class="col-lg-3 col-sm-12 col-xs-12 order-lg-1">
+                        <div class="shop sidebar">
+                            <aside class="widget categories grey-bg mb-30">
+                                <div class="widget-title">
+                                    <h3>categories</h3>
+                                </div>
+                                <div class="widget-categories"> 
+                                    {% for c in cat %}
+                                    <!--Accordion item 1--> 
+                                    <h6>{{c.nom}}</h6>
+                                    <ul>
+                                        {% for i in c.categorie_produits.all %}
+                                        <li><a href="{% url 'categorie' i.slug %}">{{ i.nom }}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                    <!--Accordion item 1 end--> 
+                                    {% endfor %}
+                                    
+                                </div>
+                            </aside>
+                            <aside class="widget filter grey-bg mb-30">
+                                <div class="widget-title">
+                                    <h3>Filtrer par prix</h3>
+                                </div>
+                                <div class="widget-filter">
+                                    <div class="price-filter">
+                                        <div id="slider-range"></div>
+                                        <div class="price-slider-amount">
+                                           <div class="slider-values">
+                                                <label>Range</label>
+                                                <input type="text" id="amount" name="price"  placeholder="Add Your Price" /> 
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                            <aside class="widget offer mb-30 hidden-sm">
+                                <div class="widget-offer-discount">
+                                    <div class="widget-img">
+                                        <img src="{% static 'images/blog/wiget-discount.jpg' %}" alt="">
+                                        <div class="widget-discount-text">
+                                            <h1>Jusqu'à <br> 50%</h1>
+                                            <h2>Reduction</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </aside>
+                            <aside class="widget newsletter grey-bg" id="newsletter">
+                                <div class="widget-title">
+                                    <h3>Subscribe</h3>
+                                </div>
+                                {% csrf_token %}
+                                <br>
+                                <div v-if="isSuccess" class="alert alert-success" role="alert">
+                                    ${ message }
+                                </div>
+                                <div v-if="error" class="alert alert-danger" role="alert">
+                                    ${ message }
+                                </div>
+                                <div class="widget-newsletter">
+                                    <p>Soyez les premiers à être informés des nouveaux deals</p>
+                                    <form action="#">
+                                        <input v-model="email" type="email" placeholder="Entrez Votre Adresse Email">
+                                        <button type="submit" v-if="!isregister"  v-on:click.prevent="post_newsletter">Je m'abonne</button>
+                                    </form>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                    <!--shop sidebar start-->
+                </div>
+            </div>
+        </div>
+        <!--shop page end-->
+
+{% endblock content %}
+
+{% block scripts %}
+
+   <!-- axios -->
+   <script src="{% static 'js/axios.js' %}"></script>
+
+   <!-- vue -->
+   <script src="{% static 'js/vue.js' %}"></script>
+
+   <script>
+        // Block Vue JS
+        new Vue({
+            el: '#newsletter',
+            data: {
+                email: '',
+                isregister: false,
+                loader: false,
+                isSuccess: false,
+                error: false,
+                base_url: window.location.protocol + "//" + window.location.host ,
+            },
+            delimiters: ["${", "}"],
+            mounted() { },
+            methods: {
+                post_newsletter: function () {
+                    if (!this.isregister) {
+                        this.error = false
+                        this.isSuccess = false
+                        this.isregister = true
+                        if (this.email == "") {
+                            this.message = "Veuillez remplir correctement les champs";
+                            this.error = true
+                            this.isSuccess = false
+                            this.isregister = false;
+                        } else {
+                            axios.defaults.xsrfCookieName = 'csrftoken'
+                            axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+                            axios.post('{% url 'post_newsletter' %}', {
+                                email: '' + this.email,
+                            }).then(response => {
+                                this.isregister = false;
+                                if (response.data.success) {
+                                    this.isSuccess = true
+                                    this.error = false
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.email = ""
+
+                                } else {
+                                    this.error = true
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.isSuccess = false
+                                }
+                            })
+                                .catch((err) => {
+                                    this.isregister = false;
+                                    console.log(err, 'oooooooooo');
+                                })
+                        }
+                    }
+                },
+            }
+        });
+    </script>
+{% endblock scripts %}

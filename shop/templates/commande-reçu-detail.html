@@ -1,0 +1,183 @@
+{% extends 'base3.html' %}
+{% load static %}
+
+{% block title %}Détails de la Commande{% endblock title %}
+
+{% block content %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f4f6f9;
+    }
+
+    .pageTitle {
+        font-size: 28px;
+        font-weight: bold;
+        text-align: left;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .order-details {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    .order-details h2 {
+        font-size: 22px;
+        color: #444;
+        margin-bottom: 15px;
+    }
+
+    .order-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .order-info div {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        flex: 1;
+    }
+
+    .order-info div strong {
+        display: block;
+        color: #333;
+    }
+
+    .back-btn {
+        display: inline-block;
+        margin-top: 20px;
+        background: linear-gradient(135deg, #556270, #FF6B6B);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 16px;
+    }
+
+    .back-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    /* Style amélioré du tableau des produits commandés */
+.order-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.order-table thead tr {
+    background: linear-gradient(135deg, #556270, #FF6B6B);
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.order-table th, .order-table td {
+    padding: 14px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.order-table tbody tr:hover {
+    background: #f8f9fa;
+    transition: 0.3s ease-in-out;
+}
+
+/* Bord arrondi en haut */
+.order-table thead tr:first-child th:first-child {
+    border-top-left-radius: 12px;
+}
+
+.order-table thead tr:first-child th:last-child {
+    border-top-right-radius: 12px;
+}
+
+/* Bord arrondi en bas */
+.order-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+
+.order-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+</style>
+
+<div class="pageWrap">
+    <div class="pageContent extended">
+        <div class="container">
+            <h1 class="pageTitle">📦 Détails de la Commande</h1>
+            <div class="order-details">
+                <h2>Informations du Client</h2>
+                <div class="order-info">
+                    <div>
+                        <strong>Nom:</strong> {{ commande.customer.user.first_name }} {{ commande.customer.user.last_name }}
+                    </div>
+                    <div>
+                        <strong>Contact:</strong> {{ commande.customer.contact_1 }}
+                    </div>
+                    <div>
+                        <strong>Email:</strong> {{ commande.customer.user.email }}
+                    </div>
+                </div>
+                
+                <h2>Détails de la Commande</h2>
+                <div class="order-info">
+                    <div>
+                        <strong>Date de Commande:</strong> {{ commande.date_add|date:"d-m-Y" }}
+                    </div>
+                    <div>
+                        <strong>Statut:</strong> 
+                        {% if commande.status %}
+                            ✅ Payée
+                        {% else %}
+                            ⏳ En attente de paiement
+                        {% endif %}
+                    </div>
+                    <div>
+                        <strong>Prix Total:</strong> {{ commande.prix_total }}€
+                    </div>
+                </div>
+
+                <h2>Produits Commandés</h2>
+                <div class="tableWrap">
+                    <table class="order-table">
+                        <thead>
+                            <tr>
+                                <th>Nom du Produit</th>
+                                <th>Quantité</th>
+                                <th>Prix Unitaire</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for produit_commande in commande.produit_commande.all %}
+                            <tr>
+                                <td>{{ produit_commande.produit.nom }}</td>
+                                <td>{{ produit_commande.quantite }}</td>
+                                <td>{{ produit_commande.produit.prix }}€</td>
+                                <td>{{ produit_commande.total }}€</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                
+                <a href="{% url 'commande-reçu' %}" class="back-btn">⬅ Retour aux Commandes</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

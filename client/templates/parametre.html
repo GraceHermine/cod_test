@@ -1,0 +1,82 @@
+{% extends 'base2.html' %}
+{% load static %}
+
+{% block title %}
+Paramètres du Profil
+{% endblock title %}
+
+{% block content %}
+
+<div class="pageWrap">
+ 
+    <div class="pageContent extended">
+        <div class="container">
+            
+            <h1 class="pageTitle">
+                <a href="#" title="#">Paramètres du Profil</a>
+            </h1>
+            <ol class="breadcrumb">
+                <li class="active">Modifier vos informations</li>
+            </ol>
+            
+            <div class="row">
+                
+                <div class="col-xs-12 col-md-12">
+                    <div class="box">
+                        <h2 class="boxTitle">Modifier les informations de votre profil</h2>
+
+                        <form method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            
+                           
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label for="first_name">Prénom</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Entrer votre prénom" value="{{ user.first_name }}">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="last_name">Nom</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Entrer votre nom" value="{{ user.last_name }}">
+                                </div>
+                            </div>
+
+                           
+                            <div class="form-group">
+                                <label for="contact">Contact</label>
+                                <input type="tel" class="form-control" id="contact" name="contact" placeholder="Numéro de téléphone" value="{{ customer.contact_1 }}">
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <select v-model="ville" class="form-control">
+                                    <option disabled value="">Sélectionnez une ville</option>
+                                    {% for c in cities %}
+                                      <option value="{{ c.id }}" {% if customer.ville.id == c.id %}selected{% endif %}>
+                                        {{ c.name }}
+                                      </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <label for="address">Adresse</label>
+                                <textarea class="form-control" id="address" name="address" rows="3" placeholder="Votre adresse complète">{{ customer.adresse }}</textarea>
+                            </div>
+
+                            
+                            <div class="form-group">
+                                <label for="profile_picture">Photo de profil</label>
+                                <input type="file" class="form-control-file" id="profile_picture" name="profile_picture">
+                            </div>
+
+                            
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

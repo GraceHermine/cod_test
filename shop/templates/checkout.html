@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Checkout</title>
+{% endblock title %}
+
+{% block styles %}
+    <script src="https://cdn.cinetpay.com/seamless/main.js" ></script>
+    <style>
+        .validate {
+            width:100%;
+            height:45px;
+        }
+    </style>
+{% endblock styles %}
+
+{% block content %}
+
+        <!--Breadcrumbs start-->
+        <div class="breadcrumbs text-center" class="breadcrumbs text-center" style="background: rgba(0, 0, 0, 0) url('{{ infos.couverture_page_paiement.url }}') no-repeat scroll center center / cover">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="breadcrumbs-title">
+                            <h2 style="color: white;">Paiement</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}" style="color: white;">HOME <span>//</span></a></li>
+                    <li>Paiement</li>
+                </ul>
+            </div>
+        </div>
+        <!--Breadcrumbs end-->
+         <!-- checkout start -->
+        <div class="checkout-area ptb-100" id="checkout">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-8 col-sm-12 col-xs-12">
+                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingSix">
+                                    <div class="checkout-step">
+                                        <a class="collapsed" role="button" data-bs-toggle="collapse" data-bs-parent="#accordion" href="#order_review">
+                                            <h5>1. Détails de la commande</h5>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div id="order_review" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingSix">
+                                    <div class="panel-body">
+                                        <div class="order-review">
+                                            <div class="table-responsive">
+                                                <table class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th class="width-1">Nom du produit</th>
+                                                            <th class="width-2">Prix</th>
+                                                            <th class="width-3">Quantité</th>
+                                                            <th class="width-4">Total</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {% for i in cart.produit_panier.all %}
+                                                        <tr>
+                                                            <td>
+                                                                <div class="o-pro-dec">
+                                                                    <p>{{ i.produit.nom }}</p>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="o-pro-price">
+                                                                    {% if i.produit.check_promotion %}
+                                                                    <p><span style="text-decoration: line-through 2px;"> {{ i.produit.prix }} </span></p>
+                                                                    <p>{{ i.produit.prix_promotionnel }} F CFA</p>
+                                                                    {% else %}
+                                                                    <p> {{ i.produit.prix }} F CFA</p>
+                                                                    {% endif %}
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="o-pro-qty">
+                                                                    <p>{{ i.quantite }}</p>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div class="o-pro-subtotal">
+                                                                    <p>{{ i.total }}</p>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        {% endfor %}
+                                                    </tbody>
+                                                    <tfoot>
+                                                        <tr>
+                                                            <td colspan="3">Sous Total </td>
+                                                            <td colspan="1">{{ cart.total }} F CFA</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td colspan="3"><b>Total</b></td>
+                                                            <td colspan="1"><b>{{ cart.total_with_coupon }} F CFA</b></td>
+                                                        </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                            <div class="block-area-button">
+                                                <span>Voulez-vous apporter des changement?  <a href="{% url 'cart' %}" class="o-back-to"> Retour au panier</a></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="panel panel-default">
+                                <div class="panel-heading" role="tab" id="headingTwo">
+                                    <div class="checkout-step active">
+                                        <a class="collapsed" role="button" data-bs-toggle="collapse" data-bs-parent="#accordion" href="#billing">
+                                            <h5>2. Informations personnelles</h5>
+                                        </a>
+                                    </div>
+                                </div>
+                                <div id="billing" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingTwo">
+                                    <div class="panel-body">
+                                        <div class="inner-step clearfix">
+                                            <form class="clearfix" action="#">
+                                                <input class="first_name" v-model="first_name" type="text" name="first" id="first" placeholder="First Name*">
+                                                <input class="last_name" v-model="last_name" type="text" name="last" id="last" placeholder="Last name*">
+                                                <input class="street_name" v-model="street_name" type="text" name="street" id="street" placeholder="Street address*">
+                                                <input class="city_name" v-model="city_name" type="text" name="city" id="city" placeholder="City*">
+                                                <input class="country_name" v-model="country_name" type="text" name="country" id="country" placeholder="State / Country">
+                                                <input class="email_address" v-model="email_address" type="text" name="email" id="email" placeholder="E-mail Address*">
+                                                <input class="phone_number" v-model="phone_number" type="text" name="phone" id="phone" placeholder="Phone number*">
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="isSuccess" class="alert alert-success" role="alert">
+                                ${ message }
+                            </div>
+                            <div v-if="error" class="alert alert-danger" role="alert">
+                                ${ message }
+                            </div>
+                            <button v-if="!isregister"  v-on:click.prevent="validate" class="validate btn-lg btn-block btn btn-success " type="submit">Payer</button>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-md-offset-1 col-sm-12 col-xs-12">
+                        <div class="checkout-right">
+                            <div class="checkout-progress">
+                                <h4>Procedure de paiement</h4>
+                            </div>
+                            <ul>
+                                <li><a href="#">- Informations personnelles</a></li>
+                                <li><a href="#">- Information de paiement</a></li>
+                                <li><a href="#">- Détails de la commande</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- checkout end -->
+{% endblock content %}
+
+
+{% block scripts %}
+
+   <!-- axios -->
+   <script src="{% static 'js/axios.js' %}"></script>
+
+   <!-- vue -->
+   <script src="{% static 'js/vue.js' %}"></script>
+
+   <script>
+        // Block Vue JS
+        new Vue({
+            el: '#checkout',
+            data: {
+                total: {{ cart.total }},
+                total_with_coupon: {{ cart.total_with_coupon }},
+                coupon: '',
+                first_name: '{{ user.first_name }}',
+                last_name: '{{ user.last_name }}',
+                street_name: '{{ user.customer.adresse }}',
+                city_name: '{{ user.customer.ville }}',
+                country_name: '{{ user.customer.pays }}',
+                email_address: '{{ user.email }}',
+                panier: '{{ cart.id }}',
+                phone_number:'{{ user.customer.contact_1 }}',
+                isregister: false,
+                loader: false,
+                isSuccess: false,
+                error: false,
+                base_url: window.location.protocol + "//" + window.location.host ,
+            },
+            delimiters: ["${", "}"],
+            mounted() {},
+            methods: {
+                validate: function() {
+                    this.isregister = true;
+                    transaction_id =  Math.floor(Math.random() * 100000000).toString()
+                    notify_url = this.base_url + "{% url 'paiement_success' %}"
+                    return_url = this.base_url + "{% url 'paiement_success' %}"
+                    axios.defaults.xsrfCookieName = 'csrftoken'
+                    axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+                    axios.post('{% url 'paiement_detail' %}', {
+                        transaction_id: '' + transaction_id,
+                        notify_url: '' + notify_url,
+                        return_url: '' + return_url,
+                        panier: '' + '{{ cart.id }}',
+                    }).then(response => {
+                        this.isregister = false;
+                        if (response.data.success) {
+                            this.isSuccess = true
+                            this.error = false
+                            this.message = response.data.message
+                            this.success = response.data.success
+                            window.location.replace('{% url 'paiement_success' %}')
+                        } else {
+                            this.error = true
+                            this.message = response.data.message
+                            this.success = response.data.success
+                            this.isSuccess = false
+                        }
+                    })
+                    .catch((err) => {
+                        this.isregister = false;
+                        console.log(err, 'oooooooooo');
+                    })
+                }    
+            },
+        });
+    </script>
+{% endblock scripts %}

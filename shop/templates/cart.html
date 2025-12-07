@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+    <title>Beautyhouse | Cart</title>
+{% endblock title %}
+
+{% block content %}
+
+        <!--Breadcrumbs start-->
+        <div class="breadcrumbs text-center" class="breadcrumbs text-center" style="background: rgba(0, 0, 0, 0) url('{{ infos.couverture_page_panier.url }}') no-repeat scroll center center / cover">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="breadcrumbs-title">
+                            <h2 style="color: white;">Cart</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="breadcrumbs-menu">
+                <ul>
+                    <li><a href="{% url 'index' %}" style="color: white;">HOME <span>//</span></a></li>
+                    <li>Cart</li>
+                </ul>
+            </div>
+        </div>
+        <!--Breadcrumbs end-->
+        <!--Cart page start-->
+        <div class="cart-page ptb-100" id="cart">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="cart_list table-responsive">
+                            <table class="table_cart table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th class="id">#</th>
+                                        <th class="product">Image</th>
+                                        <th class="description">Nom</th>
+                                        <th class="quantity">Quantity</th>
+                                        <th class="price">Prix Unitaire</th>
+                                        <th class="cart">Total</th>
+                                        <th class="action">Supprimer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in cart.produit_panier.all %}
+                                    <tr>
+                                        <td class="id">{{ forloop.counter }}</td>
+                                        <td class="product_img"><a href="#"><img alt="cart" src="{{ i.produit.image.url }}"></a></td>
+                                        <td class="product_des">
+                                            <h3><a href="#">{{ i.produit.nom }}</a></h3>
+                                        </td>
+                                        <td class="p_quantity">
+                                            {{ i.quantite }}
+                                        </td>
+                                        <td class="u_price">
+                                            {% if i.produit.check_promotion %}
+                                            <span style="text-decoration: line-through 2px;"> {{ i.produit.prix }} </span>
+                                            {{ i.produit.prix_promotionnel }} F CFA
+                                            {% else %}
+                                            {{ i.produit.prix }} F CFA
+                                            {% endif %}
+                                            </td>
+                                        <td class="u_price">{{ i.total }}</td>
+                                        <td class="p_action">
+                                            <a title="Remove"  v-if="!isregister"  v-on:click.prevent="remove_from_cart({{ i.id }})" href="#"><i class="zmdi zmdi-delete"></i></a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% if cart.check_empty %}
+                <div class="row">
+                    <div class="col-lg-5 col-md-4 col-sm-12 col-xs-12">           
+                        <a href="{% url 'shop' %}" class="continue-shopping">Retour à la boutique</a>
+                    </div>
+                    <div class="col-lg-7 col-md-8 col-sm-12 col-xs-12">      
+                        <div class="discount-code">
+                            <h2>Coupon de promotion</h2>
+                            <p>Entrez votre code de promotion si vous en avez</p>
+                            <div v-if="isSuccess" class="alert alert-success" role="alert">
+                                ${ message }
+                            </div>
+                            <div v-if="error" class="alert alert-danger" role="alert">
+                                ${ message }
+                            </div>
+                            <input v-model="coupon" type="text">
+                            <input type="submit"  v-if="!isregister"  v-on:click.prevent="add_coupon" value="Appliquer">
+                        </div>
+                        <div class="total text-right">
+                            <h2>Sous Total<span>{{ cart.total }} F CFA</span></h2>
+                            <h2 class="strong">Total  <span>{{ cart.total_with_coupon }} F CFA</span></h2>
+                            <input style="width:100% !important" v-on:click.prevent="checkout" class="process-checkout" type="submit" value="Proceder au paiement">
+                        </div>
+                    </div>    
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <!--Cart page end-->
+{% endblock content %}
+
+
+
+{% block scripts %}
+
+   <!-- axios -->
+   <script src="{% static 'js/axios.js' %}"></script>
+
+   <!-- vue -->
+   <script src="{% static 'js/vue.js' %}"></script>
+
+   <script>
+        // Block Vue JS
+        new Vue({
+            el: '#cart',
+            data: {
+                panier: '{{ cart.id }}',
+                produit_panier:'',
+                coupon:'',
+                isregister: false,
+                loader: false,
+                isSuccess: false,
+                error: false,
+                base_url: window.location.protocol + "//" + window.location.host ,
+            },
+            delimiters: ["${", "}"],
+            mounted() { },
+            methods: {
+                remove_from_cart: function (id) {
+                    console.log("#####################", id)
+                    if (!this.isregister) {
+                        this.error = false
+                        this.isSuccess = false
+                        this.isregister = true
+                        if (this.panier == "") {
+                            this.message = "Veuillez renseigner la quantité";
+                            this.error = true
+                            this.isSuccess = false
+                            this.isregister = false;
+                        } else {
+                            axios.defaults.xsrfCookieName = 'csrftoken'
+                            axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+                            axios.post('{% url 'delete_from_cart' %}', {
+                                panier: '' + this.panier,
+                                produit_panier: '' + id,
+                            }).then(response => {
+                            console.log("ierieiriizerjii")
+                                this.isregister = false;
+                                if (response.data.success) {
+                                    this.isSuccess = true
+                                    this.error = false
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    window.location.reload()
+                                } else {
+                                    this.error = true
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.isSuccess = false
+                                }
+                            })
+                                .catch((err) => {
+                                    this.isregister = false;
+                                    console.log(err, 'oooooooooo');
+                                })
+                        }
+                    }
+                },
+                add_coupon: function () {
+                    if (!this.isregister) {
+                        this.error = false
+                        this.isSuccess = false
+                        this.isregister = true
+                        if (this.coupon == "") {
+                            this.message = "Veuillez renseigner le coupon";
+                            this.error = true
+                            this.isSuccess = false
+                            this.isregister = false;
+                        } else {
+                            axios.defaults.xsrfCookieName = 'csrftoken'
+                            axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+                            axios.post('{% url 'add_coupon' %}', {
+                                panier: '' + this.panier,
+                                coupon: '' + this.coupon,
+                            }).then(response => {
+                                this.isregister = false;
+                                if (response.data.success) {
+                                    this.isSuccess = true
+                                    this.error = false
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    window.location.reload()
+                                } else {
+                                    this.error = true
+                                    this.message = response.data.message
+                                    this.success = response.data.success
+                                    this.isSuccess = false
+                                }
+                            })
+                                .catch((err) => {
+                                    this.isregister = false;
+                                    console.log(err, 'oooooooooo');
+                                })
+                        }
+                    }
+                },
+                checkout: function(){
+                    window.location.replace(this.base_url + '{% url 'checkout' %}')
+                }
+            }
+        });
+    </script>
+{% endblock scripts %}
