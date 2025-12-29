@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from client.views import profil, commande, parametre, invoice_pdf
+from client.views import avis, commande_detail, evaluation, profil, commande, parametre, invoice_pdf, souhait, suivie_commande
 
 
 class ProfilLogicTest(unittest.TestCase):
@@ -68,6 +68,7 @@ class ProfilLogicTest(unittest.TestCase):
         self.assertTrue(mock_commande.objects.filter.called)
         mock_render.assert_called_once()
 
+
     @patch('client.views.render')
     @patch('client.views.ProduitPanier')
     @patch('client.views.Commande')
@@ -127,3 +128,117 @@ class ProfilLogicTest(unittest.TestCase):
         invoice_pdf(self.request, order_id=10)
 
         mock_redirect.assert_called_once_with('commande')
+
+
+    @patch('client.views.render')
+    @patch('client.views.ProduitPanier')
+    @patch('client.views.get_object_or_404')
+    def test_commande_detail_success(self, mock_get_object, mock_produitpanier, mock_render):
+        # Mock du rendu pour éviter TemplateDoesNotExist et NoReverseMatch
+        mock_render.return_value = MagicMock()
+
+        # Simuler la commande et les produits
+        commande = MagicMock()
+        commande.id = 1  # <- important pour ne pas casser {% url 'invoice_pdf' %}
+        mock_get_object.return_value = commande
+        produits_commande = ['prod1', 'prod2']
+        mock_produitpanier.objects.filter.return_value.select_related.return_value = produits_commande
+
+        response = commande_detail(self.request, commande_id=1)
+
+        # Vérifier que render est appelé avec le bon contexte
+        mock_render.assert_called_once()
+        context = mock_render.call_args[0][2]
+        assert context['commande'] == commande
+        assert context['produits_commande'] == produits_commande
+
+    def test_commande_detail_no_customer(self):
+        # L'user n'a pas de customer
+        del self.mock_user.customer
+
+        response = commande_detail(self.request, commande_id=1)
+        # Vérifier que la redirection vers 'index' se fait
+        self.assertEqual(response.status_code, 302)
+
+
+    @patch('client.views.render')
+    def test_suivie_commande_success(self, mock_render):
+        # Simuler le retour de render
+        mock_render.return_value = MagicMock()
+        
+        self.mock_user.customer = MagicMock()
+        response = suivie_commande(self.request)
+        
+        # Vérifier que render a été appelé
+        mock_render.assert_called_once()
+        context = mock_render.call_args[0][2]
+        self.assertIn('customer', context)
+
+
+    def test_suivie_commande_no_customer(self):
+        del self.mock_user.customer
+        response = suivie_commande(self.request)
+        self.assertEqual(response.status_code, 302)
+
+
+    @patch('client.views.Favorite')
+    @patch('client.views.render')
+    def test_souhait_success(self, mock_render, mock_favorite):
+        # Simuler render
+        mock_render.return_value = MagicMock()
+        
+        # Utiliser le bon utilisateur mock
+        self.mock_user.customer = MagicMock()
+        
+        favoris = ['f1', 'f2']
+        mock_favorite.objects.filter.return_value.select_related.return_value = favoris
+
+        response = souhait(self.request)
+
+        # Vérifier que render est appelé avec le bon contexte
+        mock_render.assert_called_once()
+        context = mock_render.call_args[0][2]
+        self.assertEqual(context['favoris'], favoris)
+
+
+    def test_souhait_no_customer(self):
+        del self.mock_user.customer
+        response = souhait(self.request)
+        self.assertEqual(response.status_code, 302)
+
+
+    @patch('client.views.render')
+    def test_avis_success(self, mock_render):
+        # Mock du rendu pour éviter TemplateDoesNotExist ou NoReverseMatch
+        mock_render.return_value = MagicMock()
+
+        response = avis(self.request)
+
+        # Vérifier que render a été appelé et que le contexte contient le customer
+        mock_render.assert_called_once()
+        context = mock_render.call_args[0][2]
+        assert 'customer' in context
+        assert context['customer'] == self.mock_customer
+
+
+    def test_avis_no_customer(self):
+        del self.mock_user.customer
+        response = avis(self.request)
+        self.assertEqual(response.status_code, 302)
+
+
+    @patch('client.views.render')
+    def test_evaluation_success(self, mock_render):
+        # Mock du rendu pour éviter TemplateDoesNotExist
+        mock_render.return_value = MagicMock()
+
+        response = evaluation(self.request)
+
+        # Vérifier que render a été appelé
+        mock_render.assert_called_once()
+        context = mock_render.call_args[0][2]  # le contexte passé à render
+        assert 'customer' in context
+        assert context['customer'] == self.mock_customer
+
+
+# LES TESTS FONCTIONELS DE L'APPLICATION CLIENT
