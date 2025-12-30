@@ -3,7 +3,12 @@ import unittest
 from unittest.mock import patch, MagicMock
 import json
 from django.http import HttpRequest
+from django.urls import reverse
+import pytest
 from contact import views
+from bs4 import BeautifulSoup
+
+from contact.models import Contact, NewsLetter
 # Create your tests here.
 
 
@@ -83,3 +88,105 @@ class TestContactViews(unittest.TestCase):
         self.assertFalse(data['success'])
         self.assertEqual(data['message'], "Merci de renseigner une adresse email correcte")
         self.assertFalse(mock_newsletter_model.return_value.save.called)
+
+
+@pytest.mark.django_db
+class TestsFonctionnelContactNewsletter:
+    """
+    Tests fonctionnels purs :
+    - navigation réelle via client Django
+    - analyse HTML avec BeautifulSoup
+    - comportement utilisateur
+    """
+
+    # =========================
+    # CONTACT (GET)
+    # =========================
+
+    def test_contact_page_affichage(self, client):
+        response = client.get(reverse("contact"))
+        assert response.status_code == 200
+
+    def test_contact_formulaire_present(self, client):
+        response = client.get(reverse("contact"))
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        assert soup.find("input", {"name": "nom"})
+        assert soup.find("input", {"name": "email"})
+        assert soup.find("textarea", {"name": "message"})
+        assert soup.find("button", {"type": "submit"})
+
+    # =========================
+    # CONTACT (POST)
+    # =========================
+
+    def test_contact_post_champs_vides(self, client):
+        response = client.post(reverse("post_contact"), data={})
+
+        assert response.status_code in [200, 302]
+        assert Contact.objects.count() == 0
+
+    def test_contact_post_email_invalide(self, client):
+        response = client.post(
+            reverse("post_contact"),
+            data={
+                "nom": "Test",
+                "email": "email-invalide",
+                "message": "Message test",
+            }
+        )
+
+        assert response.status_code in [200, 302]
+        assert Contact.objects.count() == 0
+
+    def test_contact_post_donnees_valides(self, client):
+        response = client.post(
+            reverse("post_contact"),
+            data={
+                "nom": "Test User",
+                "email": "test@example.com",
+                "message": "Bonjour, ceci est un message",
+            }
+        )
+
+        assert response.status_code in [200, 302]
+        assert Contact.objects.count() == 1
+
+    # =========================
+    # NEWSLETTER (POST)
+    # =========================
+
+    def test_newsletter_champ_vide(self, client):
+        response = client.post(reverse("post_newsletter"), data={})
+
+        assert response.status_code in [200, 302]
+        assert NewsLetter.objects.count() == 0
+
+    def test_newsletter_email_invalide(self, client):
+        response = client.post(
+            reverse("post_newsletter"),
+            data={"email": "email-invalide"}
+        )
+
+        assert response.status_code in [200, 302]
+        assert NewsLetter.objects.count() == 0
+
+    def test_newsletter_email_valide(self, client):
+        response = client.post(
+            reverse("post_newsletter"),
+            data={"email": "newsletter@test.com"}
+        )
+
+        assert response.status_code in [200, 302]
+        assert NewsLetter.objects.count() == 1
+
+    def test_newsletter_email_deja_inscrit(self, client):
+        NewsLetter.objects.create(email="duplicate@test.com")
+
+        response = client.post(
+            reverse("post_newsletter"),
+            data={"email": "duplicate@test.com"}
+        )
+
+        assert response.status_code in [200, 302]
+        assert NewsLetter.objects.count() == 1

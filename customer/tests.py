@@ -1,6 +1,7 @@
 import json
 import pytest
 import unittest
+from shop.models import Produit, Etablissement, CategorieEtablissement, CategorieProduit
 from customer import views
 from django.urls import reverse
 from django.test import TestCase
@@ -8,6 +9,7 @@ from django.http import JsonResponse
 from unittest.mock import MagicMock, patch
 from django.contrib.auth.models import User
 from cities_light.models import City, Country
+from django.core.files.uploadedfile import SimpleUploadedFile
 # Create your tests here.
 
 @pytest.mark.django_db
@@ -168,6 +170,86 @@ class AuthViewsTestCase(unittest.TestCase):
         self.assertEqual(data['status'], 'success')
 
 
+# ====================
+# FIXTURES
+# ====================
+
+@pytest.fixture
+def user(db):
+    """Crée un utilisateur de test avec des informations complètes."""
+    return User.objects.create_user(
+        username="hermine",
+        password="password123",
+        first_name="Hermine",
+        last_name="Dupont",
+        email="hermine@test.com"
+    )
+
+
+@pytest.fixture
+def client_logged(client, user):
+    """Connecte l'utilisateur dans le client de test (simulate une session authentifiée)."""
+    client.force_login(user)
+    return client
+
+
+@pytest.fixture
+def categorie_etab(db):
+    """Crée une catégorie d'établissement nécessaire pour créer un Etablissement."""
+    return CategorieEtablissement.objects.create(
+        nom="Restaurant",
+        description="Catégorie pour les tests"
+    )
+
+
+@pytest.fixture
+def etablissement(db, user, categorie_etab):
+    """Crée un établissement complet avec tous les champs obligatoires.
+    Cela évite l'erreur NOT NULL sur auth_user.last_name causée par la méthode save() du modèle."""
+    return Etablissement.objects.create(
+        user=user,
+        nom="Boutique Test",
+        description="Description pour les tests",
+        logo=SimpleUploadedFile("logo.jpg", b""),  # Fichier vide pour satisfaire ImageField
+        couverture=SimpleUploadedFile("couv.jpg", b""),
+        categorie=categorie_etab,
+        adresse="123 Rue Test",
+        pays="France",
+        contact_1="0000000000",
+        email="boutique@test.com",
+        nom_du_responsable="Dupont",
+        prenoms_duresponsable="Hermine",
+    )
+
+
+@pytest.fixture
+def categorie_produit(db, categorie_etab):
+    """Crée une catégorie de produit requise pour le modèle Produit."""
+    return CategorieProduit.objects.create(
+        nom="Plat principal",
+        description="Catégorie pour les tests",
+        categorie=categorie_etab,
+    )
+
+
+@pytest.fixture
+def produit(db, etablissement, categorie_produit):
+    """Crée un produit valide lié à un établissement et une catégorie."""
+    return Produit.objects.create(
+        nom="Produit Test",
+        slug="produit-test",
+        description="Un produit pour les tests",
+        description_deal="Deal spécial",
+        prix=1000,
+        prix_promotionnel=800,
+        etablissement=etablissement,
+        categorie=categorie_produit,
+    )
+
+
+@pytest.mark.django_db
+class TestFonctionnel:
+
 
 
     # =========================
@@ -313,3 +395,193 @@ class AuthViewsTestCase(unittest.TestCase):
             {"email": "reset@test.com"}
         )
         assert response.status_code == 302
+
+
+    # @pytest.fixture
+    # def produit(self):
+    #     return Produit.objects.create(
+    #         nom="Produit test",
+    #         prix=1000,
+    #         slug="produit-test"
+    #     )
+
+
+
+    # -----------------------------
+    # Ajout au panier
+    # -----------------------------
+
+    def test_ajout_produit_valide(self, client_logged, produit):
+        """Vérifie qu'un produit existant avec quantité positive est bien ajouté au panier."""
+        response = client_logged.post(reverse("add_to_cart"), {
+            "product_id": produit.id,
+            "quantity": 1
+        })
+        # La vue renvoie généralement une redirection ou 200
+        assert response.status_code in [200, 302]
+        cart = client_logged.session.get("cart", {})
+        assert str(produit.id) in cart
+        assert cart[str(produit.id)]["quantity"] == 1
+
+
+    def test_ajout_produit_inexistant(self, client_logged):
+        """Vérifie que l'ajout d'un produit qui n'existe pas n'ajoute rien au panier.
+        Idéalement, la vue devrait renvoyer 404 ou un message d'erreur."""
+        response = client_logged.post(reverse("add_to_cart"), {
+            "product_id": 9999,
+            "quantity": 1
+        })
+        assert response.status_code in [200, 302]
+        cart = client_logged.session.get("cart", {})
+        assert "9999" not in cart  # Rien n'est ajouté → sécurité minimale respectée
+
+
+    def test_ajout_quantite_zero(self, client_logged, produit):
+        """Vérifie que quantité = 0 n'ajoute pas le produit au panier."""
+        initial_cart = client_logged.session.get("cart", {}).copy()
+        response = client_logged.post(reverse("add_to_cart"), {
+            "product_id": produit.id,
+            "quantity": 0
+        })
+        assert response.status_code in [200, 302]
+        cart = client_logged.session.get("cart", {})
+        # Le panier ne doit pas être modifié
+        assert cart == initial_cart
+
+
+    def test_ajout_quantite_negative(self, client_logged, produit):
+        """Vérifie que quantité négative n'ajoute pas le produit."""
+        initial_cart = client_logged.session.get("cart", {}).copy()
+        response = client_logged.post(reverse("add_to_cart"), {
+            "product_id": produit.id,
+            "quantity": -5
+        })
+        assert response.status_code in [200, 302]
+        cart = client_logged.session.get("cart", {})
+        assert cart == initial_cart
+
+
+    def test_ajout_meme_produit_deux_fois(self, client_logged, produit):
+        """Vérifie que ajouter deux fois le même produit incrémente la quantité."""
+        client_logged.post(reverse("add_to_cart"), {"product_id": produit.id, "quantity": 2})
+        client_logged.post(reverse("add_to_cart"), {"product_id": produit.id, "quantity": 3})
+        cart = client_logged.session["cart"]
+        assert cart[str(produit.id)]["quantity"] == 5
+
+
+    # -----------------------------
+    # Suppression du panier
+    # -----------------------------
+
+    def test_suppression_produit(self, client_logged, produit):
+        """Vérifie que la suppression d'un produit existant le retire du panier."""
+        client_logged.post(reverse("add_to_cart"), {"product_id": produit.id, "quantity": 1})
+        response = client_logged.post(reverse("delete_from_cart"), {"product_id": produit.id})
+        assert response.status_code in [200, 302]
+        assert str(produit.id) not in client_logged.session.get("cart", {})
+
+
+    def test_suppression_produit_absent(self, client_logged):
+        """Vérifie que supprimer un produit absent ne casse pas le panier."""
+        initial_cart = client_logged.session.get("cart", {}).copy()
+        response = client_logged.post(reverse("delete_from_cart"), {"product_id": 9999})
+        assert response.status_code in [200, 302]
+        cart = client_logged.session.get("cart", {})
+        assert cart == initial_cart
+
+
+    # -----------------------------
+    # Mise à jour quantité
+    # -----------------------------
+
+    def test_update_quantite_valide(self, client_logged, produit):
+        """Vérifie que la mise à jour avec une quantité positive fonctionne."""
+        client_logged.post(reverse("add_to_cart"), {"product_id": produit.id, "quantity": 1})
+        response = client_logged.post(reverse("update_cart"), {
+            "product_id": produit.id,
+            "quantity": 10
+        })
+        assert response.status_code in [200, 302]
+        assert client_logged.session["cart"][str(produit.id)]["quantity"] == 10
+
+
+    def test_update_quantite_zero(self, client_logged, produit):
+        """Vérifie que quantité = 0 supprime le produit du panier."""
+        client_logged.post(reverse("add_to_cart"), {"product_id": produit.id, "quantity": 1})
+        response = client_logged.post(reverse("update_cart"), {
+            "product_id": produit.id,
+            "quantity": 0
+        })
+        assert response.status_code in [200, 302]
+        assert str(produit.id) not in client_logged.session.get("cart", {})
+
+
+    def test_update_quantite_negative(self, client_logged, produit):
+        """Vérifie que quantité négative ne modifie pas le panier."""
+        # On suppose qu'il y a déjà une quantité (ou non)
+        initial_quantity = client_logged.session.get("cart", {}).get(str(produit.id), {}).get("quantity")
+        response = client_logged.post(reverse("update_cart"), {
+            "product_id": produit.id,
+            "quantity": -5
+        })
+        assert response.status_code in [200, 302]
+        new_quantity = client_logged.session.get("cart", {}).get(str(produit.id), {}).get("quantity")
+        assert new_quantity == initial_quantity
+
+
+    # -----------------------------
+    # Autres fonctionnalités
+    # -----------------------------
+
+    def test_coupon_invalide(self, client_logged):
+        """Vérifie le comportement avec un code coupon invalide."""
+        response = client_logged.post(reverse("add_coupon"), {"code": "FAKECODE"})
+        assert response.status_code in [200, 302]
+
+
+    def test_methode_get_interdite(self, client_logged):
+        """Vérifie que GET sur add_to_cart est interdit (protection CSRF / logique)."""
+        response = client_logged.get(reverse("add_to_cart"))
+        assert response.status_code == 405  # Method Not Allowed
+
+
+    def test_donnees_manquantes(self, client_logged):
+        """Vérifie que l'envoi de données vides ne casse pas le panier."""
+        response = client_logged.post(reverse("add_to_cart"), {})
+        assert response.status_code in [200, 302]
+        # Le panier reste intact ou vide
+        assert "cart" in client_logged.session or client_logged.session.get("cart", {}) == {}
+
+
+    def test_panier_vide(self, client_logged):
+        """Vérifie qu'un nouveau client connecté a un panier vide au départ."""
+        assert client_logged.session.get("cart", {}) == {}
+
+
+    def test_panier_persistant(self, client_logged, produit):
+        """Vérifie que le panier persiste après ajout."""
+        client_logged.post(reverse("add_to_cart"), {"product_id": produit.id, "quantity": 1})
+        assert str(produit.id) in client_logged.session.get("cart", {})
+
+
+    def test_panier_vide_apres_suppression(self, client_logged, produit):
+        """Vérifie que le panier est vide après suppression du seul produit."""
+        client_logged.post(reverse("add_to_cart"), {"product_id": produit.id, "quantity": 1})
+        client_logged.post(reverse("delete_from_cart"), {"product_id": produit.id})
+        assert client_logged.session.get("cart", {}) == {}
+
+    
+    def test_deconnexion(client_logged, user):
+        # Vérifier que l'utilisateur est connecté
+        response = client_logged.get('/')  # n'importe quelle page accessible
+        assert '_auth_user_id' in client_logged.session
+
+        # Appel de la vue de déconnexion
+        response = client_logged.get(reverse('deconnexion'))
+
+        # Vérifier le code HTTP (souvent redirection vers login)
+        assert response.status_code == 302
+
+        # Vérifier que l'utilisateur est maintenant déconnecté
+        session = client_logged.session
+        assert '_auth_user_id' not in session

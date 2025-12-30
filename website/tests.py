@@ -1,6 +1,9 @@
 from django.test import TestCase, Client
 from unittest.mock import patch, MagicMock
 
+from django.urls import reverse
+import pytest
+
 from shop.models import Produit
 
 
@@ -103,3 +106,21 @@ class TestUnitaire(TestCase):
         self.assertIn("Meilleurs prix", content)
         self.assertIn("Service client 24/7", content)
         self.assertIn("Nous sommes la meilleure plateforme", content)
+
+
+@pytest.mark.django_db
+class TestFonctionnel:
+
+    def test_index_page(self, client):
+        """Test que la page d'accueil s'affiche correctement"""
+        response = client.get(reverse('index'))
+        assert response.status_code == 200
+        # Optionnel : vérifier que le template utilisé contient un mot clé
+        assert b'Beautyhouse' in response.content
+
+    def test_about_page(self, client):
+        """Test que la page 'à propos' s'affiche correctement"""
+        response = client.get(reverse('about'))
+        assert response.status_code == 200
+        # Optionnel : vérifier que le template contient un titre attendu
+        assert b'Inscription' not in response.content  # juste pour montrer un check
